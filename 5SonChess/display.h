@@ -1,8 +1,5 @@
 #pragma once
-#include <conio.h>
-#include <Windows.h>
-#include <stdio.h>
-#include <string.h>
+#include "stdafx.h"
 #include "buffer.h"
 
 // 将光标移动到指定位置
@@ -38,5 +35,69 @@ void RefreshScreen(char **OldBuffer, char **Buffer)
 			}
 		}
 	}
-	gotoxy(63, 31);
+	gotoxy(62, 31);
+	return;
+}
+
+// 绘制空棋盘
+void DrawBlankChessboard(char **Buffer)
+{
+	
+	for (int i = 0; i < 15; i++)
+	{
+		for (int j = 0; j < 15; j++)
+		{
+			// 绘制棋盘方格
+			*(Buffer + 2 * i * 32 + 2 * j) = "　";
+			*(Buffer + 2 * i * 32 + 2 * j + 1) = "│";
+			*(Buffer + (2 * i + 1) * 32 + 2 * j) = "—";
+			*(Buffer + (2 * i + 1) * 32 + 2 * j + 1) = "┼";
+
+			// 绘制棋盘边界图样
+			*(Buffer + 2 * i * 32 + 1) = "┃";
+			*(Buffer + 2 * i * 32 + 29) = "┃";
+			*(Buffer + (2 * i + 1) * 32 + 1) = "┠";
+			*(Buffer + (2 * i + 1) * 32 + 29) = "┨";
+			*(Buffer + 32 + 2 * j) = "━";
+			*(Buffer + 928 + 2 * j) = "━";
+			*(Buffer + 32 + 2 * j + 1) = "┯";
+			*(Buffer + 928 + 2 * j + 1) = "┷";
+		}
+	}
+
+	// 绘制棋盘四角图样
+	*(Buffer + 33) = "┏";
+	*(Buffer + 61) = "┓";
+	*(Buffer + 929) = "┗";
+	*(Buffer + 957) = "┛";
+
+
+	// 棋盘的上边和左右边留空
+	for (int j = 0; j < 32; j++) *(Buffer + j) = "　";
+	for (int i = 0; i < 32; i++)
+	{
+		*(Buffer + i * 32) = "　";
+		*(Buffer + i * 32 + 31) = "　";
+	}
+	return;
+}
+
+// 清除原有光标
+void CleanCursor(int x, int y, char **Buffer)
+{
+	*(Buffer + 32 * (2 * y) + (2 * x)) = "　";
+	*(Buffer + 32 * (2 * y) + (2 * x + 2)) = "　";
+	*(Buffer + 32 * (2 * y + 2) + (2 * x)) = "　";
+	*(Buffer + 32 * (2 * y + 2) + (2 * x + 2)) = "　";
+	return;
+}
+
+// 绘制棋盘光标
+void DrawCursor(int x, int y, char **Buffer)
+{
+	*(Buffer + 32 * (2 * y) + (2 * x)) = "┌";
+	*(Buffer + 32 * (2 * y) + (2 * x + 2)) = "┐";
+	*(Buffer + 32 * (2 * y + 2) + (2 * x)) = "└";
+	*(Buffer + 32 * (2 * y + 2) + (2 * x + 2)) = "┘";
+	return;
 }
