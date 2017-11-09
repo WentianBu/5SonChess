@@ -21,7 +21,10 @@ This is a **gobang** C program with AI. This program is the big assignment of UC
 
 2. 功能较为单一，仅支持按照本地标准编写的DLL AI程序。将来可能加入对弈心协议（Yixin-protocol）的支持，使之能够加载弈心引擎。
 >Yixin protocol is a protocol derived from Gomocup protocol. It is designed because Gomocup protocol has some limitation. Firstly used by Yixin, Yixin protocol supports more commands than Gomocup protocol. Yixin protocol is fully implemented in Gomoku/Renju GUI Yixin Board.
-
 >Kai Sun
 
 关于弈心协议的更多内容详见[弈心协议的GitHub页面](https://github.com/accreator/Yixin-protocol)
+
+
+Wentian Bu
+2017-11-09
