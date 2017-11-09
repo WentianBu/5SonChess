@@ -4,7 +4,6 @@ This is a **gobang** C program with AI. This program is the big assignment of UC
 
 
 # 五子棋
-**********************************
 这是一个带有AI的C语言**五子棋**程序，按照C99标准编写，作为UCAS的C语言大作业。
 
 ## 特性
