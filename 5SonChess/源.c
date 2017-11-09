@@ -138,9 +138,26 @@ void PVP(char **Buffer, char **OldBuffer)
 	}
 }
 
-void PVE()
+void PVE(char **Buffer, char **OldBuffer)
 {
-	;
+	system("cls");
+	printf("正在加载AI_ZhangNingxin.dll\n");
+	typedef struct
+	{
+		int x;
+		int y;
+	}place;
+	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE);
+	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
+	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
+	(*funcpVersion)();
+
+	char mode = '0';
+	printf("请选择(F)先手 / (S)后手:\n");
+	while (mode!='F'&&mode!='f'&&mode!='S'&&mode!='s')
+	{
+
+	}
 }
 
 void EVE(char **Buffer, char **OldBuffer)
@@ -284,7 +301,7 @@ int main()
 		switch (FunctionChoice)
 		{
 		case 1: PVP(Buffer[0],OldBuffer[0]); break;
-		case 2: PVE(); break;
+		case 2: PVE(Buffer[0],OldBuffer[0]); break;
 		case 3: EVE(Buffer[0],OldBuffer[0]); break;
 		case 4: exit(0); break;
 		default: exit(-1); break;
