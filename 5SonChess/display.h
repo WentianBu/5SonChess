@@ -85,19 +85,21 @@ void DrawBlankChessboard(char **Buffer)
 // 清除原有光标
 void CleanCursor(int x, int y, char **Buffer)
 {
-	*(Buffer + 32 * (2 * y) + (2 * x)) = "　";
-	*(Buffer + 32 * (2 * y) + (2 * x + 2)) = "　";
-	*(Buffer + 32 * (2 * y + 2) + (2 * x)) = "　";
-	*(Buffer + 32 * (2 * y + 2) + (2 * x + 2)) = "　";
+	// x为行，y为列
+	*(Buffer + 32 * (2 * x) + (2 * y)) = "　";
+	*(Buffer + 32 * (2 * x) + (2 * y + 2)) = "　";
+	*(Buffer + 32 * (2 * x + 2) + (2 * y)) = "　";
+	*(Buffer + 32 * (2 * x + 2) + (2 * y + 2)) = "　";
 	return;
 }
 
 // 绘制棋盘光标
 void DrawCursor(int x, int y, char **Buffer)
 {
-	*(Buffer + 32 * (2 * y) + (2 * x)) = "┌";
-	*(Buffer + 32 * (2 * y) + (2 * x + 2)) = "┐";
-	*(Buffer + 32 * (2 * y + 2) + (2 * x)) = "└";
-	*(Buffer + 32 * (2 * y + 2) + (2 * x + 2)) = "┘";
+	// x为行，y为列
+	*(Buffer + 32 * (2 * x) + (2 * y)) = "┌";
+	*(Buffer + 32 * (2 * x) + (2 * y + 2)) = "┐";
+	*(Buffer + 32 * (2 * x + 2) + (2 * y)) = "└";
+	*(Buffer + 32 * (2 * x + 2) + (2 * y + 2)) = "┘";
 	return;
 }

@@ -1,6 +1,11 @@
 ﻿#include "stdafx.h"
 #include "judge.h"
 #define BOARDMAX 15
+typedef struct
+{
+	int x; // 行
+	int y; // 列
+}place;
 
 
 
@@ -53,11 +58,7 @@ void PVP(char **Buffer, char **OldBuffer)
 	
 
 	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
-	struct place
-	{
-		int x;
-		int y;
-	}CursorPlace; // 当前光标所指位置
+	place CursorPlace; // 当前光标所指位置
 	InitiateBuffer(Buffer);
 	RefreshScreen(OldBuffer, Buffer);
 	DrawBlankChessboard(Buffer);
@@ -74,22 +75,22 @@ void PVP(char **Buffer, char **OldBuffer)
 		RefreshScreen(OldBuffer, Buffer);
 		key1 = _getch();
 
-		if (key1 == ' ' && Chess[CursorPlace.y][CursorPlace.x] == 0)
+		if (key1 == ' ' && Chess[CursorPlace.x][CursorPlace.y] == 0)
 		{
 			if (CurrentPlayer == 0)
 			{
-				Chess[CursorPlace.y][CursorPlace.x] = 1;
-				*(Buffer + 32 * (2 * CursorPlace.y + 1) + (2 * CursorPlace.x + 1)) = "●";
+				Chess[CursorPlace.x][CursorPlace.y] = 1;
+				*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "●";
 				RefreshScreen(OldBuffer, Buffer);
 			}
 			else if (CurrentPlayer == 1)
 			{
-				Chess[CursorPlace.y][CursorPlace.x] = 2;
-				*(Buffer + 32 * (2 * CursorPlace.y + 1) + (2 * CursorPlace.x + 1)) = "○";
+				Chess[CursorPlace.x][CursorPlace.y] = 2;
+				*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "○";
 				RefreshScreen(OldBuffer, Buffer);
 			}
 			
-			Winner = Check(CursorPlace.y, CursorPlace.x, CurrentPlayer,Chess[0]);
+			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer,Chess[0]);
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
 		}
@@ -100,10 +101,10 @@ void PVP(char **Buffer, char **OldBuffer)
 			CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			switch (key2)
 			{
-			case 72: CursorPlace.y--; break;
-			case 80: CursorPlace.y++; break;
-			case 75: CursorPlace.x--; break;
-			case 77: CursorPlace.x++; break;
+			case 72: CursorPlace.x--; break;
+			case 80: CursorPlace.x++; break;
+			case 75: CursorPlace.y--; break;
+			case 77: CursorPlace.y++; break;
 			default: break;
 			}
 
@@ -142,34 +143,141 @@ void PVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
 	printf("正在加载AI_ZhangNingxin.dll\n");
-	typedef struct
-	{
-		int x;
-		int y;
-	}place;
 	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE);
 	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
 	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
 	(*funcpVersion)();
 
 	char mode = '0';
+	unsigned int Turn; // 当前选手，0为玩家，1为AI
 	printf("请选择(F)先手 / (S)后手:\n");
-	while (mode!='F'&&mode!='f'&&mode!='S'&&mode!='s')
+	while (mode!='s'&&mode!='S'&&mode!='f'&&mode !='F')
 	{
-
+		rewind(stdin);
+		mode = _getch();
 	}
+	if (mode == 'f' || mode == 'F') Turn = 0;
+	else if (mode == 's' || mode == 'S') Turn = 1; 
+
+	// 初始化对局
+	system("cls");
+	int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
+	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
+	place CursorPlace; // 当前光标所指位置
+	InitiateBuffer(Buffer);
+	RefreshScreen(OldBuffer, Buffer);
+	DrawBlankChessboard(Buffer);
+	RefreshScreen(OldBuffer, Buffer);
+	CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
+	int Winner = -1, Round = 1;
+
+	while (Winner == -1 && Round <= 225)
+	{
+		if (Turn == 0)
+		{
+			// 玩家下棋
+			char key1, key2;
+			rewind(stdin);
+			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
+			RefreshScreen(OldBuffer, Buffer);
+			key1 = _getch();
+			if (key1 == ' ' && Chess[CursorPlace.x][CursorPlace.y] == 0)
+			{
+				if (CurrentPlayer == 0)
+				{
+					Chess[CursorPlace.x][CursorPlace.y] = 1;
+					*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "●";
+					RefreshScreen(OldBuffer, Buffer);
+				}
+				else if (CurrentPlayer == 1)
+				{
+					Chess[CursorPlace.x][CursorPlace.y] = 2;
+					*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "○";
+					RefreshScreen(OldBuffer, Buffer);
+				}
+
+				Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
+				Round++;
+				CurrentPlayer = !CurrentPlayer;
+				Turn = !Turn; //切换玩家
+			}
+			else if (key1 == -32)
+			{
+				key2 = _getch();
+				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				switch (key2)
+				{
+				case 72: CursorPlace.x--; break;
+				case 80: CursorPlace.x++; break;
+				case 75: CursorPlace.y--; break;
+				case 77: CursorPlace.y++; break;
+				default: break;
+				}
+				// 光标移出棋盘时的循环
+				if (CursorPlace.y == -1) CursorPlace.y = 14;
+				if (CursorPlace.y == 15) CursorPlace.y = 0;
+				if (CursorPlace.x == -1) CursorPlace.x = 14;
+				if (CursorPlace.x == 15) CursorPlace.x = 0;
+			}
+			
+		}
+		else if (Turn == 1)
+		{
+			// AI下棋
+			place AIPlace;
+			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
+			RefreshScreen(OldBuffer, Buffer);
+
+			tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib, "API_Main");
+			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib);
+			if (CurrentPlayer == 0)
+			{
+				Chess[AIPlace.x][AIPlace.y] = 1;
+				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "●";
+				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				CursorPlace = AIPlace;
+				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				RefreshScreen(OldBuffer, Buffer);
+			}
+			else if (CurrentPlayer == 1)
+			{
+				Chess[AIPlace.x][AIPlace.y] = 2;
+				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "○";
+				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				CursorPlace = AIPlace;
+				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				RefreshScreen(OldBuffer, Buffer);
+			}
+			Winner = Check(AIPlace.x, AIPlace.y, CurrentPlayer, Chess[0]);
+			Round++;
+			CurrentPlayer = !CurrentPlayer;
+			Turn = !Turn; //切换玩家
+		}
+		
+	}
+	if (Winner == 0)
+	{
+		gotoxy(63, 0);
+		printf("黑方获得胜利！");
+	}
+	else if (Winner == 1)
+	{
+		gotoxy(63, 0);
+		printf("白方获得胜利！");
+	}
+	else
+	{
+		gotoxy(63, 0);
+		printf("平局！");
+	}
+	system("pause");
+	return;
 }
 
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
 	printf("正在加载AI_ZhangNingxin.dll\n");
-
-	typedef struct
-	{
-		int x;
-		int y;
-	}place; 
 	typedef place(*tFuncpAI_Zhang)(int (*)[15], int, HMODULE);
 	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
 	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
@@ -196,12 +304,8 @@ void EVE(char **Buffer, char **OldBuffer)
 	while (_GameNumber > 0)
 	{
 		rewind(stdin);
-		
 		int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
-
-
 		unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
-
 		place CursorPlace; // 当前光标所指位置
 		InitiateBuffer(Buffer);
 		RefreshScreen(OldBuffer, Buffer);
@@ -223,8 +327,7 @@ void EVE(char **Buffer, char **OldBuffer)
 				Chess[AIPlace.x][AIPlace.y] = 1;
 				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace.y = AIPlace.x;
-				CursorPlace.x = AIPlace.y;
+				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				RefreshScreen(OldBuffer, Buffer);
 			}
@@ -233,12 +336,10 @@ void EVE(char **Buffer, char **OldBuffer)
 				Chess[AIPlace.x][AIPlace.y] = 2;
 				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace.y = AIPlace.x;
-				CursorPlace.x = AIPlace.y;
+				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				RefreshScreen(OldBuffer, Buffer);
 			}
-
 			Winner = Check(AIPlace.x, AIPlace.y, CurrentPlayer, Chess[0]);
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
