@@ -1,6 +1,5 @@
 ﻿#include "stdafx.h"
 #include "judge.h"
-#define BOARDMAX 15
 typedef struct
 {
 	int x; // 行
@@ -20,7 +19,7 @@ int MainMenu(char **Buffer, char **OldBuffer)
 	*(Buffer + 461) = "2. 与AI对战";
 	*(Buffer + 525) = "3. 双AI调试";
 	*(Buffer + 589) = "4. 退出游戏";
-	*(Buffer + 711) = "Powered By Wentian Bu    Version 0.1.1";
+	*(Buffer + 711) = "Powered By Wentian Bu    Version 1.0.0";
 	for (int i = 6; i < 26; i++) *(Buffer + 736 + i) = "——";
 	RefreshScreen(OldBuffer, Buffer);
 	int CurrentPointer = 1;
@@ -55,8 +54,6 @@ void PVP(char **Buffer, char **OldBuffer)
 {
 	system("cls");
 	int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
-	
-
 	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
 	place CursorPlace; // 当前光标所指位置
 	InitiateBuffer(Buffer);
@@ -408,68 +405,6 @@ int main()
 		default: exit(-1); break;
 		}
 	}
-	
-	/*
-	int x = 16, y = 16;
-	Buffer[x-1][y-1] = "┏";
-	Buffer[x-1][y+1] = "┓";
-	Buffer[x+1][y-1] = "┗";
-	Buffer[x+1][y+1] = "┛";
-	RefreshScreen(OldBuffer[0], Buffer[0]);
-	
-	
-	char key1, key2;
-	while (1)
-	{
-		rewind(stdin);
-		key1 = _getch();
-		if(key1==-32)
-		Buffer[x - 1][y - 1] = "  ";
-		Buffer[x - 1][y + 1] = "  ";
-		Buffer[x + 1][y - 1] = "  ";
-		Buffer[x + 1][y + 1] = "  ";
-		key2 = _getch();
-		//switch (key1)
-		//{
-		//case 224:
-			switch (key2)
-			{
-			case 72: x--; break;
-			case 80: x++; break;
-			case 75: y--; break;
-			case 77: y++; break;
-			default: break;
-			}
-			Buffer[x - 1][y - 1] = "┏";
-			Buffer[x - 1][y + 1] = "┓";
-			Buffer[x + 1][y - 1] = "┗";
-			Buffer[x + 1][y + 1] = "┛";
-			RefreshScreen(OldBuffer[0], Buffer[0]);
-			//break;
-		//default: break;
-		//}
-		
-		
-		
-		switch (key)
-		{
-		case 'w': y--;
-		case 's': y++;
-		case 'a': x--;
-		case 'd': x++;
-		}
-		Buffer[x - 1][y - 1] = "┏";
-		Buffer[x - 1][y + 1] = "┓";
-		Buffer[x + 1][y - 1] = "┗";
-		Buffer[x + 1][y + 1] = "┛";
-		RefreshScreen(OldBuffer[0], Buffer[0]);
-		
 
-	}
-	*/
-	
-	
-
-	
 	return 0;
 }
