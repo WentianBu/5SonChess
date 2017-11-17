@@ -6,3 +6,4 @@
 #include "display.h"
 #include "buffer.h"
 #include <tchar.h>
+#include <string.h>
