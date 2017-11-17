@@ -18,9 +18,10 @@ int MainMenu(char **Buffer, char **OldBuffer)
 	*(Buffer + 397) = "1. 玩家对战";
 	*(Buffer + 461) = "2. 与AI对战";
 	*(Buffer + 525) = "3. 双AI调试";
-	*(Buffer + 589) = "4. 退出游戏";
-	*(Buffer + 711) = "Powered By Wentian Bu    Version 1.0.0";
-	for (int i = 6; i < 26; i++) *(Buffer + 736 + i) = "——";
+	*(Buffer + 589) = "4. 查看规则";
+	*(Buffer + 653) = "5. 退出游戏";
+	*(Buffer + 775) = "Powered By Wentian Bu    Version 1.0.1";
+	for (int i = 6; i < 26; i++) *(Buffer + 800 + i) = "——";
 	RefreshScreen(OldBuffer, Buffer);
 	int CurrentPointer = 1;
 	while (1)
@@ -42,8 +43,8 @@ int MainMenu(char **Buffer, char **OldBuffer)
 			case 80: CurrentPointer++; break;
 			default: break;
 			}
-			if (CurrentPointer == 5) CurrentPointer = 1;
-			else if (CurrentPointer == 0) CurrentPointer = 4;
+			if (CurrentPointer == 6) CurrentPointer = 1;
+			else if (CurrentPointer == 0) CurrentPointer = 5;
 		}
 		else if (key1=='\r') return CurrentPointer;
 	}
@@ -139,7 +140,7 @@ void PVP(char **Buffer, char **OldBuffer)
 void PVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	printf("正在加载AI_ZhangNingxin.dll\n");
+	printf("正在加载AI_ZhangNingxin.dll...\n\n");
 	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE);
 	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
 	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
@@ -274,7 +275,7 @@ void PVE(char **Buffer, char **OldBuffer)
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	printf("正在加载AI_ZhangNingxin.dll\n");
+	printf("正在加载AI_ZhangNingxin.dll...\n\n");
 	typedef place(*tFuncpAI_Zhang)(int (*)[15], int, HMODULE);
 	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
 	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
@@ -385,6 +386,12 @@ void EVE(char **Buffer, char **OldBuffer)
 	return;
 }
 
+void DisplayRule()
+{
+	ShellExecute(NULL, _T("open"), _T("..\\5SonChess\\rules\\rules.html"), NULL, NULL, SW_SHOW);
+	return;
+}
+
 int main()
 {
 	system("mode con cols=63 lines=40");
@@ -401,7 +408,8 @@ int main()
 		case 1: PVP(Buffer[0],OldBuffer[0]); break;
 		case 2: PVE(Buffer[0],OldBuffer[0]); break;
 		case 3: EVE(Buffer[0],OldBuffer[0]); break;
-		case 4: exit(0); break;
+		case 4: DisplayRule(); break;
+		case 5: exit(0); break;
 		default: exit(-1); break;
 		}
 	}
