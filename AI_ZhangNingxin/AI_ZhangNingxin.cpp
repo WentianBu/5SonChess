@@ -37,7 +37,7 @@ EXP int PrintVersionInfo()
 	printf("Release Note: 张宁鑫的半成品智障五子棋AI程序，于2017年11月2日改编成DLL。\n");
 	printf("已经启用对张宁鑫旧版API的支持。\n");
 	printf("AI已经准备就绪。\n\n");
-	return 1;
+	return 1; // 返回值1表示API是张宁鑫老版本
 }
 
 EXP int xCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
