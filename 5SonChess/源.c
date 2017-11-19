@@ -140,11 +140,36 @@ void PVP(char **Buffer, char **OldBuffer)
 void PVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	printf("正在加载AI_ZhangNingxin.dll...\n\n");
-	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE);
-	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
-	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
-	(*funcpVersion)();
+	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
+
+	OPENFILENAME DLL = { 0 };
+	TCHAR DLLName[MAX_PATH] = { 0 };
+	DLL.lStructSize = sizeof(OPENFILENAME);//结构体大小  
+	DLL.hwndOwner = NULL;//拥有着窗口句柄，为NULL表示对话框是非模态的，实际应用中一般都要有这个句柄  
+	DLL.lpstrFilter = TEXT("AI动态链接库(*.dll)\0*.dll\0所有文件(*.*)\0*.*\0\0");//设置过滤  
+	DLL.nFilterIndex = 1;//过滤器索引  
+	DLL.lpstrFile = DLLName;//接收返回的文件名，注意第一个字符需要为NULL  
+	DLL.nMaxFile = sizeof(DLLName);//缓冲区长度  
+	DLL.lpstrInitialDir = NULL;//初始目录为默认  
+	DLL.lpstrTitle = TEXT("请选择AI使用的AI动态链接库");//使用系统默认标题留空即可  
+	DLL.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;//文件、目录必须存在，隐藏只读选项  
+
+	HMODULE hDllLib = NULL;
+	FARPROC funcpVersion = NULL;
+	int FirstTimeOpen = 1; // 首次打开文件的标记
+	int UserCancel = 0;
+	printf("请选择AI使用的动态链接库...\n");
+	do
+	{
+		if (FirstTimeOpen == 0) printf("无法识别%ls，请重新选择AI模组。\n", DLLName);
+		UserCancel = GetOpenFileName(&DLL);
+		if (UserCancel == 0) return;
+		printf("正在加载%ls...\n", DLLName);
+		FirstTimeOpen = 0;
+		hDllLib = LoadLibrary(DLLName);
+		if (hDllLib != 0) funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
+	} while (funcpVersion == NULL);
+	int AI_Type1 = (*funcpVersion)();
 
 	char mode = '0';
 	unsigned int Turn; // 当前选手，0为玩家，1为AI
@@ -268,6 +293,7 @@ void PVE(char **Buffer, char **OldBuffer)
 		gotoxy(63, 0);
 		printf("平局！");
 	}
+	FreeLibrary(hDllLib);
 	system("pause");
 	return;
 }
@@ -275,11 +301,66 @@ void PVE(char **Buffer, char **OldBuffer)
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	printf("正在加载AI_ZhangNingxin.dll...\n\n");
-	typedef place(*tFuncpAI_Zhang)(int (*)[15], int, HMODULE);
-	HMODULE hDllLib = LoadLibrary(_T("AI_ZhangNingxin.dll"));
-	FARPROC funcpVersion = GetProcAddress(hDllLib, "PrintVersionInfo"); // 输出DLL信息
-	(*funcpVersion)();
+	typedef place(*tFuncpAI_Zhang)(int (*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
+
+	OPENFILENAME DLL1 = { 0 }, DLL2 = { 0 };
+	TCHAR DLL1Name[MAX_PATH] = { 0 }, DLL2Name[MAX_PATH] = { 0 }; // 接收两个DLL的文件名
+	{
+		DLL1.lStructSize = sizeof(OPENFILENAME);//结构体大小  
+		DLL1.hwndOwner = NULL;//拥有着窗口句柄，为NULL表示对话框是非模态的，实际应用中一般都要有这个句柄  
+		DLL1.lpstrFilter = TEXT("AI动态链接库(*.dll)\0*.dll\0所有文件(*.*)\0*.*\0\0");//设置过滤  
+		DLL1.nFilterIndex = 1;//过滤器索引  
+		DLL1.lpstrFile = DLL1Name;//接收返回的文件名，注意第一个字符需要为NULL  
+		DLL1.nMaxFile = sizeof(DLL1Name);//缓冲区长度  
+		DLL1.lpstrInitialDir = NULL;//初始目录为默认  
+		DLL1.lpstrTitle = TEXT("请选择黑方使用的AI动态链接库");//使用系统默认标题留空即可  
+		DLL1.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;//文件、目录必须存在，隐藏只读选项  
+
+		DLL2.lStructSize = sizeof(OPENFILENAME);//结构体大小  
+		DLL2.hwndOwner = NULL;//拥有着窗口句柄，为NULL表示对话框是非模态的，实际应用中一般都要有这个句柄  
+		DLL2.lpstrFilter = TEXT("AI动态链接库(*.dll)\0*.dll\0所有文件(*.*)\0*.*\0\0");//设置过滤  
+		DLL2.nFilterIndex = 1;//过滤器索引  
+		DLL2.lpstrFile = DLL2Name;//接收返回的文件名，注意第一个字符需要为NULL  
+		DLL2.nMaxFile = sizeof(DLL2Name);//缓冲区长度  
+		DLL2.lpstrInitialDir = NULL;//初始目录为默认  
+		DLL2.lpstrTitle = TEXT("请选择黑方使用的AI动态链接库");//使用系统默认标题留空即可  
+		DLL2.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;//文件、目录必须存在，隐藏只读选项 
+	} // 初始化两个 OPENFILENAME 结构体
+	printf("请选择黑方使用的AI模组...\n");
+	HMODULE hDllLib1 = NULL, hDllLib2 = NULL;
+	FARPROC funcpVersion = NULL;
+	int FirstTimeOpen = 1; // 首次打开文件的标记
+	int UserCancel = 0;
+	do
+	{
+		if (FirstTimeOpen == 0) printf("无法识别%ls，请重新选择AI模组。\n", DLL1Name);
+		UserCancel = GetOpenFileName(&DLL1);
+		if (UserCancel == 0) return;
+		printf("正在加载%ls...\n", DLL1Name);
+		FirstTimeOpen = 0;
+		hDllLib1 = LoadLibrary(DLL1Name);
+		if (hDllLib1 != 0) funcpVersion = GetProcAddress(hDllLib1, "PrintVersionInfo"); // 输出DLL信息
+	} while (funcpVersion == NULL);
+	int AI_Type1 = (*funcpVersion)();
+
+	printf("\n\n请选择白方使用的AI模组...\n");
+	// 初始化加载时所用的变量
+	funcpVersion = NULL;
+	FirstTimeOpen = 1;
+	UserCancel = 0;
+	do
+	{
+		if (FirstTimeOpen == 0) printf("无法识别%ls，请重新选择AI模组。\n", DLL2Name);
+		UserCancel = GetOpenFileName(&DLL2);
+		if (UserCancel == 0) return;
+		printf("正在加载%ls...\n", DLL2Name);
+		FirstTimeOpen = 0;
+		hDllLib2 = LoadLibrary(DLL2Name);
+		if (hDllLib2 != 0) funcpVersion = GetProcAddress(hDllLib2, "PrintVersionInfo"); // 输出DLL信息
+	} while (funcpVersion == NULL);
+	int AI_Type2 = (*funcpVersion)();
+
+
 	printf("是否进入统计调试模式？(Y/N)\n");
 	char mode = _getch();
 	int GameNumber = 0, BlackWin = 0, WhiteWin = 0, NoWin = 0;
@@ -318,8 +399,9 @@ void EVE(char **Buffer, char **OldBuffer)
 			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			RefreshScreen(OldBuffer, Buffer);
 
-			tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib, "API_Main");
-			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib);
+			tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib1, "API_Main");
+			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
+
 			if (CurrentPlayer == 0)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 1;
@@ -381,7 +463,8 @@ void EVE(char **Buffer, char **OldBuffer)
 		
 	}
 	printf("\n共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
-	FreeLibrary(hDllLib);
+	FreeLibrary(hDllLib1);
+	FreeLibrary(hDllLib2);
 	system("pause");
 	return;
 }

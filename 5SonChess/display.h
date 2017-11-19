@@ -50,7 +50,7 @@ void DrawBlankChessboard(char **Buffer)
 			// 绘制棋盘方格
 			*(Buffer + 2 * i * 32 + 2 * j) = "　";
 			*(Buffer + 2 * i * 32 + 2 * j + 1) = "│";
-			*(Buffer + (2 * i + 1) * 32 + 2 * j) = "—";
+			*(Buffer + (2 * i + 1) * 32 + 2 * j) = "─";
 			*(Buffer + (2 * i + 1) * 32 + 2 * j + 1) = "┼";
 
 			// 绘制棋盘边界图样
@@ -72,11 +72,11 @@ void DrawBlankChessboard(char **Buffer)
 	*(Buffer + 957) = "┛";
 
 	// 绘制天元和星点
-	*(Buffer + 495) = "╬";
-	*(Buffer + 231) = "╬";
-	*(Buffer + 247) = "╬";
-	*(Buffer + 743) = "╬";
-	*(Buffer + 759) = "╬";
+	*(Buffer + 495) = "╋";
+	*(Buffer + 231) = "╋";
+	*(Buffer + 247) = "╋";
+	*(Buffer + 743) = "╋";
+	*(Buffer + 759) = "╋";
 
 	// 棋盘的上边和左右边留空
 	for (int j = 0; j < 32; j++) *(Buffer + j) = "　";
