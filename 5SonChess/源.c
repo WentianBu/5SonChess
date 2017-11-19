@@ -399,11 +399,15 @@ void EVE(char **Buffer, char **OldBuffer)
 			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			RefreshScreen(OldBuffer, Buffer);
 
-			tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib1, "API_Main");
-			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
+
 
 			if (CurrentPlayer == 0)
 			{
+				if (AI_Type1 == 1)
+				{
+					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib1, "API_Main");
+					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
+				}
 				Chess[AIPlace.x][AIPlace.y] = 1;
 				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -413,6 +417,11 @@ void EVE(char **Buffer, char **OldBuffer)
 			}
 			else if (CurrentPlayer == 1)
 			{
+				if (AI_Type2 == 1)
+				{
+					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib2, "API_Main");
+					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib2);
+				}
 				Chess[AIPlace.x][AIPlace.y] = 2;
 				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
