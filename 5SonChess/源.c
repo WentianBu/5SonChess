@@ -151,7 +151,7 @@ void PVE(char **Buffer, char **OldBuffer)
 	DLL.lpstrFile = DLLName;//接收返回的文件名，注意第一个字符需要为NULL  
 	DLL.nMaxFile = sizeof(DLLName);//缓冲区长度  
 	DLL.lpstrInitialDir = NULL;//初始目录为默认  
-	DLL.lpstrTitle = TEXT("请选择AI使用的AI动态链接库");//使用系统默认标题留空即可  
+	DLL.lpstrTitle = TEXT("请选择AI使用的动态链接库");//使用系统默认标题留空即可  
 	DLL.Flags = OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST | OFN_HIDEREADONLY;//文件、目录必须存在，隐藏只读选项  
 
 	HMODULE hDllLib = NULL;
@@ -467,9 +467,6 @@ void EVE(char **Buffer, char **OldBuffer)
 		_GameNumber--;
 		printf("\n已进行%d局，剩余%d局\n", GameNumber - _GameNumber, _GameNumber);
 		printf("黑胜%d局，白胜%d局，平局%d局", BlackWin, WhiteWin, NoWin);
-		
-		
-		
 	}
 	printf("\n共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
 	FreeLibrary(hDllLib1);
