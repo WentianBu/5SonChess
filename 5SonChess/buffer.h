@@ -1,11 +1,11 @@
-#pragma once
-
-//³õÊ¼»¯»º³åÆ÷£¬ÔÚÆäÖĞÌî³ä¿Õ¸ñ
+ï»¿#pragma once
+#include "macro.h"
+//åˆå§‹åŒ–ç¼“å†²å™¨ï¼Œåœ¨å…¶ä¸­å¡«å……ç©ºæ ¼
 void InitiateBuffer(char **p)
 {
-	for (int i = 0; i < 1024; i++)
+	for (int i = 0; i < BUFFER_LINES * BUFFER_WIDTH; i++)
 	{
-		*p = "¡¡";
+		*p = "  ";
 		p++;
 	}
 }

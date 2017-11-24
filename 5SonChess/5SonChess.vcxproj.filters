@@ -38,6 +38,12 @@
     <ClInclude Include="stdafx.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="macro.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="keyboard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="rules\rules.html">

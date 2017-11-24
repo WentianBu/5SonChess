@@ -26,6 +26,8 @@
     <ClInclude Include="buffer.h" />
     <ClInclude Include="display.h" />
     <ClInclude Include="judge.h" />
+    <ClInclude Include="keyboard.h" />
+    <ClInclude Include="macro.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

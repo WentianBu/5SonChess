@@ -1,5 +1,8 @@
 ﻿#include "stdafx.h"
 #include "judge.h"
+#include "macro.h"
+#include "keyboard.h"
+
 typedef struct
 {
 	int x; // 行
@@ -12,30 +15,33 @@ typedef struct
 int MainMenu(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	for (int i = 6; i < 26; i++) *(Buffer+160+i) = "——";
-	*(Buffer + 235) = "欢迎来到 五子荣耀！";
-	*(Buffer + 298) = "请使用上下方向键选择功能：";
-	*(Buffer + 397) = "1. 玩家对战";
-	*(Buffer + 461) = "2. 与AI对战";
-	*(Buffer + 525) = "3. 双AI调试";
-	*(Buffer + 589) = "4. 查看规则";
-	*(Buffer + 653) = "5. 退出游戏";
-	*(Buffer + 775) = "Powered By Wentian Bu    Version 1.0.1";
-	for (int i = 6; i < 26; i++) *(Buffer + 800 + i) = "——";
+	for (int i = (BUFFER_WIDTH - 20) / 2; i < (BUFFER_WIDTH + 20) / 2; i++)
+		*(Buffer + 5 * BUFFER_WIDTH + i) = "—"; // "—"符号的个数为20个且居中显示在第5行
+	*(Buffer + 7 * BUFFER_WIDTH + (BUFFER_WIDTH - 10) / 2) = "欢迎来到 五子荣耀！"; // 显示在第7行并居中
+	*(Buffer + 9 * BUFFER_WIDTH + (BUFFER_WIDTH - 13) / 2) = "请使用上下方向键选择功能："; //显示在第9行并居中
+	*(Buffer + 12 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "1. 玩家对战"; // 显示在第12行并居中
+	*(Buffer + 14 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "2. 与AI对战";
+	*(Buffer + 16 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "3. 双AI调试";
+	*(Buffer + 18 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "4. 查看规则";
+	*(Buffer + 20 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "5. 退出游戏";
+	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 17) / 2) = "Powered By Wentian Bu  Version 1.2.0";
+	for (int i = (BUFFER_WIDTH - 20) / 2; i < (BUFFER_WIDTH + 20) / 2; i++)
+		*(Buffer + 25 * BUFFER_WIDTH + i) = "—";
 	RefreshScreen(OldBuffer, Buffer);
 	int CurrentPointer = 1;
 	while (1)
 	{
 		rewind(stdin);
-		*(Buffer + 331 + 64 * CurrentPointer) = "→";
-		*(Buffer + 340 + 64 * CurrentPointer) = "←";
+		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "→";
+		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "←";
 		RefreshScreen(OldBuffer, Buffer);
+		
 		char key1, key2;
 		key1 = _getch();
 		if (key1 == -32)
 		{
-			*(Buffer + 331 + 64 * CurrentPointer) = "  ";
-			*(Buffer + 340 + 64 * CurrentPointer) = "  ";
+			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "  ";
+			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "  ";
 			key2 = _getch();
 			switch (key2)
 			{
@@ -48,13 +54,12 @@ int MainMenu(char **Buffer, char **OldBuffer)
 		}
 		else if (key1=='\r') return CurrentPointer;
 	}
-	
 }
 
 void PVP(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
+	int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
 	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
 	place CursorPlace; // 当前光标所指位置
 	InitiateBuffer(Buffer);
@@ -64,27 +69,25 @@ void PVP(char **Buffer, char **OldBuffer)
 	CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
 
 	// 移动光标和落子
-	char key1, key2;
 	int Winner = -1, Round = 1;
-	while (Winner == -1 && Round <= 225)
+	while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
 	{
 		rewind(stdin);
 		DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 		RefreshScreen(OldBuffer, Buffer);
-		key1 = _getch();
-
-		if (key1 == ' ' && Chess[CursorPlace.x][CursorPlace.y] == 0)
+		int key = GetKey();
+		if (key == CONFRM && Chess[CursorPlace.x][CursorPlace.y] == 0) // 落子
 		{
 			if (CurrentPlayer == 0)
 			{
 				Chess[CursorPlace.x][CursorPlace.y] = 1;
-				*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "●";
 				RefreshScreen(OldBuffer, Buffer);
 			}
 			else if (CurrentPlayer == 1)
 			{
 				Chess[CursorPlace.x][CursorPlace.y] = 2;
-				*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "○";
 				RefreshScreen(OldBuffer, Buffer);
 			}
 			
@@ -92,45 +95,44 @@ void PVP(char **Buffer, char **OldBuffer)
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
 		}
-		
-		else if (key1 == -32)
+		else if (key == EXIT) return; // 放弃当前游戏
+		else if(key >= 1 && key <= 4) // 处理方向键
 		{
-			key2 = _getch();
 			CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-			switch (key2)
+			switch (key)
 			{
-			case 72: CursorPlace.x--; break;
-			case 80: CursorPlace.x++; break;
-			case 75: CursorPlace.y--; break;
-			case 77: CursorPlace.y++; break;
+			case MOVE_UP: CursorPlace.x--; break;
+			case MOVE_DOWN: CursorPlace.x++; break;
+			case MOVE_LEFT: CursorPlace.y--; break;
+			case MOVE_RIGHT: CursorPlace.y++; break;
 			default: break;
 			}
 
 			// 光标移出棋盘时的循环
-			if (CursorPlace.y == -1) CursorPlace.y = 14;
-			if (CursorPlace.y == 15) CursorPlace.y = 0;
-			if (CursorPlace.x == -1) CursorPlace.x = 14;
-			if (CursorPlace.x == 15) CursorPlace.x = 0;
+			if (CursorPlace.y == -1) CursorPlace.y = CHESSBOARD_WIDTH-1;
+			if (CursorPlace.y == CHESSBOARD_WIDTH) CursorPlace.y = 0;
+			if (CursorPlace.x == -1) CursorPlace.x = CHESSBORAD_LINES-1;
+			if (CursorPlace.x == CHESSBORAD_LINES) CursorPlace.x = 0;
 		}
 		
 	}
 	if (Winner == 0)
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("黑方获得胜利！");
 		system("pause");
 		return;
 	}
 	else if (Winner == 1)
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("白方获得胜利！");
 		system("pause");
 		return;
 	}
 	else
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("平局！");
 		system("pause");
 		return;
@@ -184,7 +186,7 @@ void PVE(char **Buffer, char **OldBuffer)
 
 	// 初始化对局
 	system("cls");
-	int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
+	int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
 	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
 	place CursorPlace; // 当前光标所指位置
 	InitiateBuffer(Buffer);
@@ -194,28 +196,27 @@ void PVE(char **Buffer, char **OldBuffer)
 	CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
 	int Winner = -1, Round = 1;
 
-	while (Winner == -1 && Round <= 225)
+	while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
 	{
 		if (Turn == 0)
 		{
 			// 玩家下棋
-			char key1, key2;
 			rewind(stdin);
 			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			RefreshScreen(OldBuffer, Buffer);
-			key1 = _getch();
-			if (key1 == ' ' && Chess[CursorPlace.x][CursorPlace.y] == 0)
+			int key = GetKey();
+			if (key == CONFRM && Chess[CursorPlace.x][CursorPlace.y] == 0)
 			{
 				if (CurrentPlayer == 0)
 				{
 					Chess[CursorPlace.x][CursorPlace.y] = 1;
-					*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "●";
+					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "●";
 					RefreshScreen(OldBuffer, Buffer);
 				}
 				else if (CurrentPlayer == 1)
 				{
 					Chess[CursorPlace.x][CursorPlace.y] = 2;
-					*(Buffer + 32 * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)) = "○";
+					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "○";
 					RefreshScreen(OldBuffer, Buffer);
 				}
 
@@ -224,16 +225,16 @@ void PVE(char **Buffer, char **OldBuffer)
 				CurrentPlayer = !CurrentPlayer;
 				Turn = !Turn; //切换玩家
 			}
-			else if (key1 == -32)
+			else if (key == EXIT) return;
+			else if (key >= 1 && key <= 4)
 			{
-				key2 = _getch();
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				switch (key2)
+				switch (key)
 				{
-				case 72: CursorPlace.x--; break;
-				case 80: CursorPlace.x++; break;
-				case 75: CursorPlace.y--; break;
-				case 77: CursorPlace.y++; break;
+				case MOVE_UP: CursorPlace.x--; break;
+				case MOVE_DOWN: CursorPlace.x++; break;
+				case MOVE_LEFT: CursorPlace.y--; break;
+				case MOVE_RIGHT: CursorPlace.y++; break;
 				default: break;
 				}
 				// 光标移出棋盘时的循环
@@ -256,7 +257,7 @@ void PVE(char **Buffer, char **OldBuffer)
 			if (CurrentPlayer == 0)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -265,7 +266,7 @@ void PVE(char **Buffer, char **OldBuffer)
 			else if (CurrentPlayer == 1)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -280,17 +281,17 @@ void PVE(char **Buffer, char **OldBuffer)
 	}
 	if (Winner == 0)
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("黑方获得胜利！");
 	}
 	else if (Winner == 1)
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("白方获得胜利！");
 	}
 	else
 	{
-		gotoxy(63, 0);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("平局！");
 	}
 	FreeLibrary(hDllLib);
@@ -383,24 +384,23 @@ void EVE(char **Buffer, char **OldBuffer)
 	while (_GameNumber > 0)
 	{
 		rewind(stdin);
-		int Chess[15][15] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
+		int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
 		unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
 		place CursorPlace; // 当前光标所指位置
-		InitiateBuffer(Buffer);
-		RefreshScreen(OldBuffer, Buffer);
+		// 注：下面这两句关系到统计调试时运行速度和棋盘是否闪烁
+		// 若注释掉则可以明显提高运行速度，且棋盘不闪烁，只有棋子快速变化
+		//InitiateBuffer(Buffer);
+		//RefreshScreen(OldBuffer, Buffer);
 		DrawBlankChessboard(Buffer);
 		RefreshScreen(OldBuffer, Buffer);
 		CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
 
 		int Winner = -1, Round = 1;
-		while (Winner == -1 && Round <= 225)
+		while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
 		{
 			place AIPlace;
 			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			RefreshScreen(OldBuffer, Buffer);
-
-
-
 			if (CurrentPlayer == 0)
 			{
 				if (AI_Type1 == 1)
@@ -409,7 +409,7 @@ void EVE(char **Buffer, char **OldBuffer)
 					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -423,7 +423,7 @@ void EVE(char **Buffer, char **OldBuffer)
 					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib2);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + 32 * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -448,27 +448,30 @@ void EVE(char **Buffer, char **OldBuffer)
 		}
 		if (Winner == 0)
 		{
-			gotoxy(63, 0);
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 			printf("黑方获得胜利！");
 			BlackWin++;
 		}
 		else if (Winner == 1)
 		{
-			gotoxy(63, 0);
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 			printf("白方获得胜利！");
 			WhiteWin++;
 		}
 		else
 		{
-			gotoxy(63, 0);
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 			printf("平局！");
 			NoWin++;
 		}
 		_GameNumber--;
-		printf("\n已进行%d局，剩余%d局\n", GameNumber - _GameNumber, _GameNumber);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
+		printf("已进行%d局，剩余%d局", GameNumber - _GameNumber, _GameNumber);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+2);
 		printf("黑胜%d局，白胜%d局，平局%d局", BlackWin, WhiteWin, NoWin);
 	}
-	printf("\n共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+3);
+	printf("共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
 	FreeLibrary(hDllLib1);
 	FreeLibrary(hDllLib2);
 	system("pause");
@@ -483,13 +486,17 @@ void DisplayRule()
 
 int main()
 {
-	system("mode con cols=63 lines=40");
+	// 为system()函数添加可变参数
+	char CMD_Args[255];
+	sprintf_s(CMD_Args, 255, "mode con cols=%d lines=%d", 2 * BUFFER_WIDTH - 1, BUFFER_LINES + 8);
+	system(CMD_Args);
 	system("color F0");
-	char *Buffer[32][32] = { NULL };
-	char *OldBuffer[32][32] = { NULL };
+	// Buffer和OldBuffer是二维指针数组
+	char *Buffer[BUFFER_LINES][BUFFER_WIDTH] = { NULL };
+	char *OldBuffer[BUFFER_LINES][BUFFER_WIDTH] = { NULL };
 	while (1)
 	{
-		InitiateBuffer(&Buffer[0][0]);
+		InitiateBuffer(Buffer[0]); //Buffer[0]是一个一维指针数组的首地址
 		RefreshScreen(OldBuffer[0], Buffer[0]);
 		int FunctionChoice = MainMenu(Buffer[0], OldBuffer[0]);
 		switch (FunctionChoice)
