@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "judge.h"
-#include "macro.h"
 #include "keyboard.h"
+#include "buffer.h"
 
 typedef struct
 {
@@ -35,24 +35,31 @@ int MainMenu(char **Buffer, char **OldBuffer)
 		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "→";
 		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "←";
 		RefreshScreen(OldBuffer, Buffer);
-		
-		char key1, key2;
-		key1 = _getch();
-		if (key1 == -32)
+		//读取按键
+		int key = GetKey();
+		switch (key)
+		{
+		case MOVE_UP:
 		{
 			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "  ";
 			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "  ";
-			key2 = _getch();
-			switch (key2)
-			{
-			case 72: CurrentPointer--; break;
-			case 80: CurrentPointer++; break;
-			default: break;
-			}
-			if (CurrentPointer == 6) CurrentPointer = 1;
-			else if (CurrentPointer == 0) CurrentPointer = 5;
+			CurrentPointer--;
+			break;
 		}
-		else if (key1=='\r') return CurrentPointer;
+		case MOVE_DOWN:
+		{
+			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "  ";
+			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "  ";
+			CurrentPointer++;
+			break;
+		}
+		case CONFRM: return CurrentPointer;
+		default:
+			break;
+		}
+		//按键循环
+		if (CurrentPointer == 6) CurrentPointer = 1;
+		else if (CurrentPointer == 0) CurrentPointer = 5;
 	}
 }
 
@@ -81,22 +88,26 @@ void PVP(char **Buffer, char **OldBuffer)
 			if (CurrentPlayer == 0)
 			{
 				Chess[CursorPlace.x][CursorPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "●";
 				RefreshScreen(OldBuffer, Buffer);
 			}
 			else if (CurrentPlayer == 1)
 			{
 				Chess[CursorPlace.x][CursorPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "○";
 				RefreshScreen(OldBuffer, Buffer);
 			}
-			
-			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer,Chess[0]);
+
+			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
 		}
-		else if (key == EXIT) return; // 放弃当前游戏
-		else if(key >= 1 && key <= 4) // 处理方向键
+		else if (key == EXIT)
+		{
+			FreeHeapMemory(Buffer);
+			return; // 放弃当前游戏
+		}
+		else if (key >= 1 && key <= 4) // 处理方向键
 		{
 			CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 			switch (key)
@@ -109,34 +120,24 @@ void PVP(char **Buffer, char **OldBuffer)
 			}
 
 			// 光标移出棋盘时的循环
-			if (CursorPlace.y == -1) CursorPlace.y = CHESSBOARD_WIDTH-1;
+			if (CursorPlace.y == -1) CursorPlace.y = CHESSBOARD_WIDTH - 1;
 			if (CursorPlace.y == CHESSBOARD_WIDTH) CursorPlace.y = 0;
-			if (CursorPlace.x == -1) CursorPlace.x = CHESSBORAD_LINES-1;
+			if (CursorPlace.x == -1) CursorPlace.x = CHESSBORAD_LINES - 1;
 			if (CursorPlace.x == CHESSBORAD_LINES) CursorPlace.x = 0;
 		}
-		
 	}
-	if (Winner == 0)
+	// 单次游戏结束时的处理
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES); //光标移到棋盘下端
+	switch (Winner)
 	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("黑方获得胜利！");
-		system("pause");
-		return;
+	case 0: printf("黑方获得胜利！\n"); break;
+	case 1: printf("白方获得胜利！\n"); break;
+	default:printf("平局！\n");
+		break;
 	}
-	else if (Winner == 1)
-	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("白方获得胜利！");
-		system("pause");
-		return;
-	}
-	else
-	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("平局！");
-		system("pause");
-		return;
-	}
+	system("pause");
+	FreeHeapMemory(Buffer);
+	return;
 }
 
 void PVE(char **Buffer, char **OldBuffer)
@@ -176,13 +177,13 @@ void PVE(char **Buffer, char **OldBuffer)
 	char mode = '0';
 	unsigned int Turn; // 当前选手，0为玩家，1为AI
 	printf("请选择(F)先手 / (S)后手:\n");
-	while (mode!='s'&&mode!='S'&&mode!='f'&&mode !='F')
+	while (mode != 's'&&mode != 'S'&&mode != 'f'&&mode != 'F')
 	{
 		rewind(stdin);
 		mode = _getch();
 	}
 	if (mode == 'f' || mode == 'F') Turn = 0;
-	else if (mode == 's' || mode == 'S') Turn = 1; 
+	else if (mode == 's' || mode == 'S') Turn = 1;
 
 	// 初始化对局
 	system("cls");
@@ -210,13 +211,13 @@ void PVE(char **Buffer, char **OldBuffer)
 				if (CurrentPlayer == 0)
 				{
 					Chess[CursorPlace.x][CursorPlace.y] = 1;
-					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "●";
+					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "●";
 					RefreshScreen(OldBuffer, Buffer);
 				}
 				else if (CurrentPlayer == 1)
 				{
 					Chess[CursorPlace.x][CursorPlace.y] = 2;
-					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1)+CENTER_OFFSET) = "○";
+					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "○";
 					RefreshScreen(OldBuffer, Buffer);
 				}
 
@@ -225,7 +226,11 @@ void PVE(char **Buffer, char **OldBuffer)
 				CurrentPlayer = !CurrentPlayer;
 				Turn = !Turn; //切换玩家
 			}
-			else if (key == EXIT) return;
+			else if (key == EXIT)
+			{
+				FreeHeapMemory(Buffer);
+				return;
+			}
 			else if (key >= 1 && key <= 4)
 			{
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -243,7 +248,7 @@ void PVE(char **Buffer, char **OldBuffer)
 				if (CursorPlace.x == -1) CursorPlace.x = 14;
 				if (CursorPlace.x == 15) CursorPlace.x = 0;
 			}
-			
+
 		}
 		else if (Turn == 1)
 		{
@@ -257,7 +262,7 @@ void PVE(char **Buffer, char **OldBuffer)
 			if (CurrentPlayer == 0)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -266,7 +271,7 @@ void PVE(char **Buffer, char **OldBuffer)
 			else if (CurrentPlayer == 1)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -277,24 +282,18 @@ void PVE(char **Buffer, char **OldBuffer)
 			CurrentPlayer = !CurrentPlayer;
 			Turn = !Turn; //切换玩家
 		}
-		
 	}
-	if (Winner == 0)
+	// 单次游戏结束后的处理
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
+	switch (Winner)
 	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("黑方获得胜利！");
-	}
-	else if (Winner == 1)
-	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("白方获得胜利！");
-	}
-	else
-	{
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		printf("平局！");
+	case 0: printf("黑方获得胜利！\n"); break;
+	case 1: printf("白方获得胜利！\n"); break;
+	default:printf("平局！\n");
+		break;
 	}
 	FreeLibrary(hDllLib);
+	FreeHeapMemory(Buffer);
 	system("pause");
 	return;
 }
@@ -302,7 +301,7 @@ void PVE(char **Buffer, char **OldBuffer)
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	typedef place(*tFuncpAI_Zhang)(int (*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
+	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
 
 	OPENFILENAME DLL1 = { 0 }, DLL2 = { 0 };
 	TCHAR DLL1Name[MAX_PATH] = { 0 }, DLL2Name[MAX_PATH] = { 0 }; // 接收两个DLL的文件名
@@ -409,7 +408,7 @@ void EVE(char **Buffer, char **OldBuffer)
 					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "●";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "●";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -423,7 +422,7 @@ void EVE(char **Buffer, char **OldBuffer)
 					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib2);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1)+CENTER_OFFSET) = "○";
+				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "○";
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = AIPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
@@ -446,34 +445,31 @@ void EVE(char **Buffer, char **OldBuffer)
 			default:break;
 			}
 		}
-		if (Winner == 0)
+		// 单局游戏结束后的处理
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
+		switch (Winner)
 		{
-			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-			printf("黑方获得胜利！");
+		case 0: printf("黑方获得胜利！");
 			BlackWin++;
-		}
-		else if (Winner == 1)
-		{
-			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-			printf("白方获得胜利！");
+			break;
+		case 1: printf("白方获得胜利！");
 			WhiteWin++;
-		}
-		else
-		{
-			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-			printf("平局！");
+			break;
+		default: printf("平局！");
 			NoWin++;
+			break;
 		}
 		_GameNumber--;
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 1);
 		printf("已进行%d局，剩余%d局", GameNumber - _GameNumber, _GameNumber);
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+2);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 2);
 		printf("黑胜%d局，白胜%d局，平局%d局", BlackWin, WhiteWin, NoWin);
 	}
-	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+3);
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 3);
 	printf("共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
 	FreeLibrary(hDllLib1);
 	FreeLibrary(hDllLib2);
+	FreeHeapMemory(Buffer);
 	system("pause");
 	return;
 }
@@ -501,9 +497,9 @@ int main()
 		int FunctionChoice = MainMenu(Buffer[0], OldBuffer[0]);
 		switch (FunctionChoice)
 		{
-		case 1: PVP(Buffer[0],OldBuffer[0]); break;
-		case 2: PVE(Buffer[0],OldBuffer[0]); break;
-		case 3: EVE(Buffer[0],OldBuffer[0]); break;
+		case 1: PVP(Buffer[0], OldBuffer[0]); break;
+		case 2: PVE(Buffer[0], OldBuffer[0]); break;
+		case 3: EVE(Buffer[0], OldBuffer[0]); break;
 		case 4: DisplayRule(); break;
 		case 5: exit(0); break;
 		default: exit(-1); break;

@@ -19,6 +19,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="buffer.c" />
+    <ClCompile Include="display.c" />
+    <ClCompile Include="keyboard.c" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="源.c" />
   </ItemGroup>
@@ -27,7 +30,6 @@
     <ClInclude Include="display.h" />
     <ClInclude Include="judge.h" />
     <ClInclude Include="keyboard.h" />
-    <ClInclude Include="macro.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>

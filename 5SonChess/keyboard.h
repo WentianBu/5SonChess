@@ -1,6 +1,7 @@
 ﻿#pragma once
 // keyboard.h
 // 用于接收键盘按键操作，尤其是需要接收方向键、控制键、功能键等非基础ASCII字符时使用
+#include "stdafx.h"
 
 // 是否使用JSON文件定义按键功能
 #define USE_JSON_PROFILE 0
@@ -47,45 +48,10 @@
 #define INVALID -1 // 无效按键，提示主程序进行处理
 
 #if USE_JSON_PROFILE==0
-int GetKey()
-{
-	char key1, key2;
-	rewind(stdin);
-	key1 = _getch();
-	
-	if (key1 == ' '&&SPACE_CONFRM == 1) return CONFRM;
-	if (key1 == '\r'&&ENTER_CONFRM == 1) return CONFRM;
+// 直接调用该函数获取按键信息，而无须处理不同的按键以及方向键。
+// 函数返回以上几种按键结果：光标移动、退出游戏、悔棋、落子以及无效按键。对不同按键的支持通过更改宏来进行。
+int GetKey();
 
-	if (key1 == 27 && ESC_EXIT) return EXIT;
-	
-	if ((key1 == 'h' || key1 == 'H') && H_REGRET == 1) return REGRET;
-	if (key1 == '\b'&&BKSPC_REGRET == 1) return REGRET;
-
-	if (WASD_MOVE == 1)
-	{
-		switch (key1)
-		{
-		case 'w':case 'W': return MOVE_UP;
-		case 'a':case 'A': return MOVE_LEFT;
-		case 's':case 'S': return MOVE_DOWN;
-		case 'd':case 'D': return MOVE_RIGHT;
-		}
-	}
-
-	if (key1 == -32 && UDLR_MOVE == 1)
-	{
-		key2 = _getch();
-		switch (key2)
-		{
-		case 72: return MOVE_UP;
-		case 80: return MOVE_DOWN;
-		case 75: return MOVE_LEFT;
-		case 77: return MOVE_RIGHT;
-		}
-	}
-
-	return INVALID;
-}
 
 
 #endif // USE_JSON_PROFILE==0

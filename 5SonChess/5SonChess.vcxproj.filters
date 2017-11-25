@@ -18,10 +18,19 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
     <ClCompile Include="源.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="stdafx.cpp">
+    <ClCompile Include="buffer.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="display.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="keyboard.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,9 +45,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="macro.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="keyboard.h">
