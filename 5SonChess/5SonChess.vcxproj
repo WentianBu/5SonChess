@@ -22,6 +22,7 @@
     <ClCompile Include="buffer.c" />
     <ClCompile Include="display.c" />
     <ClCompile Include="keyboard.c" />
+    <ClCompile Include="LoadAI.c" />
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="源.c" />
   </ItemGroup>
@@ -30,7 +31,9 @@
     <ClInclude Include="display.h" />
     <ClInclude Include="judge.h" />
     <ClInclude Include="keyboard.h" />
+    <ClInclude Include="LoadAI.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="UnionDefine.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="rules\rules.html" />
