@@ -16,6 +16,63 @@ This is a **gobang** C program with AI. This program is the big assignment of UC
 
 4. 支持本地PVP、人机对战和双AI调试模式。双AI调试功能提供**调试统计**模式，可以令两个AI程序快速进行多局游戏并自动统计胜负情况，有利于对AI的棋力进行对比。也可以采用单局调试，对AI的每一步进行观看。
 
+## 用法
+双AI调试功能可以快速评判两个AI模组的棋力。使用双AI调试功能需要按照主程序推荐的方法来编写AI模组。具体说明如下：
+1. 主程序采用显式调用的方法加载AI模组。运行主程序并选择人机对战或者双AI调试功能后，主程序会调用文件管理器来要求用户选择AI模组。
+
+2. 主程序加载AI模组时，会首先调用GetProcAddress()函数与AI握手。AI中应当导出函数PrintVersionInfo()，其定义如下：
+	```
+	int PrintVersionInfo()
+	{
+		printf("DLL Name: xxxx.dll\n"); // dll文件名
+		printf("Version: x.x.x_xxxx\n"); // dll版本号
+		printf("Application Interface Type: xxxxxxxxxx\n"); // dll接口类型（随便起一个名字）
+		printf("Release Note: xxxxxxxxxxx\n"); // 版本注记
+		printf("........"); // 其他要说明的内容
+		printf("AI已经准备就绪。\n\n");
+		return x;
+		// 注意：返回值非常重要，这是主程序识别dll接口类型的唯一方式。
+		// 如果你使用了主程序中已经定义的接口，则应该返回对应的值，并且在上面dll接口类型中说明。
+		// 如果你的接口是主程序中未定义的，你需要定义一个不同于现有接口类型的返回值，并针对该dll更改主程序以添加功能。
+	}
+
+	```
+	主程序如果不能在dll中找到符合规范的这个函数，就会报错并且要求用户重新选择dll模组。
+
+3. AI的应该导出一个函数API_Main()来作为与主程序的接口。我们强烈建议AI返回一个place型的变量，即落子位置。place型的定义如下：
+	```
+	// 该结构体的行、列均相对Chess[][]数组而言
+	typedef struct place
+	{
+		int x; // 行
+		int y; // 列
+	}place;		
+	```
+	如果你想返回其他类型的内容，则需要对主程序进行较大改动。AI的传入值可以有很多个，包括AI的各个参数设置、棋局等情况。主程序不应该调用除此之外的其他函数来获得或者计算落子位置。dll中的其他函数都应该由这个函数来调用。
+
+4. 主程序如何修改：如果你定义了新的接口，则需要修改主程序以支持这种接口。
+
+	**注：符合标准的PrintVersionInfo()是必要的，你不应该为了支持不标准的PrintVersionInfo()而修改主程序中的相关内容。**
+
+	你首先应该使用以下语句定义一个类型：
+	```
+	typedef place(*tFuncpXXXX)(type, type, type,...)
+	```
+	这是一个指向“返回值为place型，参数为(type, type, type,...)型的函数”的指针类型。"t"代表类型名，"Func"代表函数，"p"代表指针，"XXXX"可以自定义。参数表(type, type, type,...)根据你的接口定义，将type改成相应的类型。
+
+	之后，你应该修改对AI接口的判断语句，添加一个if分支来识别你的接口类型。在这个分支里，你需要以下两个语句：
+	```
+	tFuncpXXXX funcpXXXX = (tFuncpXXXX)GetProcAddress(hDllLib, "API_Main");
+	AIPlace = (*funcpXXXX)(Arg1, Arg2, Arg3,...);	
+	```
+	第一个语句调用GetProcAddress()函数来查找API_Main()函数，并将指针funcpXXXX指向该函数。第二个语句则通过指针调用该函数获得AI计算出的落子位置。
+
+5. 你应该新建一个Win 32动态链接库应用程序项目来生成AI模组。别忘了在int PrintVersionInfo()和place API_Main()函数前面，加上以下导出说明：
+	```
+	extern "C" _declspec(dllexport)
+	```
+	你也可以定义一个宏来少打几个字母，实现同样的功能。
+
 ## 不足和开发目标
 1. 显示引擎仍然使用ANSI方式处理中文和制表字符，因此略显过时和累赘。将来可能对显示引擎进行升级，完全采用新的架构，并做成一个更加通用的引擎。
 
