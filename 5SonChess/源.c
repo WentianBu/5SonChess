@@ -143,7 +143,7 @@ void PVP(char **Buffer, char **OldBuffer)
 void PVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
+	typedef place(*tFuncpAI_Zhang)(int(*)[15], int); // 针对张宁鑫的旧版API提供支持
 
 	OPENFILENAME DLL = { 0 };
 	TCHAR DLLName[MAX_PATH] = { 0 };
@@ -258,7 +258,7 @@ void PVE(char **Buffer, char **OldBuffer)
 			RefreshScreen(OldBuffer, Buffer);
 
 			tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib, "API_Main");
-			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib);
+			AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
 			if (CurrentPlayer == 0)
 			{
 				Chess[AIPlace.x][AIPlace.y] = 1;
@@ -301,7 +301,7 @@ void PVE(char **Buffer, char **OldBuffer)
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	typedef place(*tFuncpAI_Zhang)(int(*)[15], int, HMODULE); // 针对张宁鑫的旧版API提供支持
+	typedef place(*tFuncpAI_Zhang)(int(*)[15], int); // 针对张宁鑫的旧版API提供支持
 
 	OPENFILENAME DLL1 = { 0 }, DLL2 = { 0 };
 	TCHAR DLL1Name[MAX_PATH] = { 0 }, DLL2Name[MAX_PATH] = { 0 }; // 接收两个DLL的文件名
@@ -405,7 +405,7 @@ void EVE(char **Buffer, char **OldBuffer)
 				if (AI_Type1 == 1)
 				{
 					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib1, "API_Main");
-					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib1);
+					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 1;
 				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "●";
@@ -419,7 +419,7 @@ void EVE(char **Buffer, char **OldBuffer)
 				if (AI_Type2 == 1)
 				{
 					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib2, "API_Main");
-					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1, hDllLib2);
+					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
 				}
 				Chess[AIPlace.x][AIPlace.y] = 2;
 				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "○";
