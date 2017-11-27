@@ -4,6 +4,7 @@
 #include "buffer.h"
 #include "LoadAI.h"
 #include "UnionDefine.h"
+#include "record.h"
 
 
 //显示主菜单并且选择功能，将选择的功能编号返回至主函数
@@ -64,6 +65,14 @@ void PVP(char **Buffer, char **OldBuffer)
 	int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
 	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
 	place CursorPlace; // 当前光标所指位置
+	// 创建记录棋局的链表
+	ChainNode *pNode = NULL;
+	errno_t err = CreateRecordChain(&pNode);
+	if (err != 0)
+	{
+		MessageBox(NULL, _T("Fatal error 0x00001: Fail to create record chain."), _T("Error"), MB_ICONERROR);
+		return;
+	} //处理错误，如果出现则中止游戏并弹出消息框警告
 	InitiateBuffer(Buffer);
 	RefreshScreen(OldBuffer, Buffer);
 	DrawBlankChessboard(Buffer);
@@ -92,10 +101,39 @@ void PVP(char **Buffer, char **OldBuffer)
 				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "○";
 				RefreshScreen(OldBuffer, Buffer);
 			}
-
+			
+			//记录棋步
+			err = RecordStep(&pNode, Round, 0, CurrentPlayer, CursorPlace);
+			if (err != 0)
+			{
+				MessageBox(NULL, _T("Fatal error 0x00002: Fail to record a step."), _T("Error"), MB_ICONERROR);
+				return;
+			} //处理错误，如果出现则中止游戏并弹出消息框警告
 			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
+		}
+		else if (key == REGRET)
+		{
+			place LastPlace;
+			// 处理悔棋操作
+			err = RegretStep(&pNode, &LastPlace);
+			if (err != 0)
+			{
+				MessageBox(NULL, _T("都悔到头了，有意思吗？"), _T("无棋可悔"), MB_ICONWARNING|MB_SETFOREGROUND);
+			} //处理无棋可悔的情况，如果出现则弹出消息框警告
+			if (err == 0)
+			{
+				Chess[LastPlace.x][LastPlace.y] = 0;
+				Round--;//回合数减1
+				CurrentPlayer = !CurrentPlayer;
+				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				CursorPlace = LastPlace;
+				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
+				*(Buffer + BUFFER_WIDTH * (2 * LastPlace.x + 1) + (2 * LastPlace.y + 1) + CENTER_OFFSET) = "┼";
+				// TODO：此处应该处理边界和星点图案，使用函数获取
+				RefreshScreen(OldBuffer, Buffer);
+			}
 		}
 		else if (key == EXIT)
 		{
@@ -132,6 +170,7 @@ void PVP(char **Buffer, char **OldBuffer)
 	}
 	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
 	system("pause");
+	DeleteRecordChain(&pNode);
 	FreeHeapMemory(Buffer);
 	return;
 }
@@ -282,7 +321,6 @@ void EVE(char **Buffer, char **OldBuffer)
 	printf("请选择白方使用的AI模组...\n");
 	hDllLib2 = OpenDLL(&AI_Type2);
 	if (hDllLib2 == 0) return;
-
 
 	printf("是否进入统计调试模式？(Y/N)\n");
 	char mode = _getch();
