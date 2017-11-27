@@ -33,6 +33,9 @@
     <ClCompile Include="keyboard.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="LoadAI.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
@@ -48,6 +51,12 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="keyboard.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="LoadAI.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="UnionDefine.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
