@@ -1,7 +1,6 @@
 ﻿#pragma once
 // keyboard.h
 // 用于接收键盘按键操作，尤其是需要接收方向键、控制键、功能键等非基础ASCII字符时使用
-#include "stdafx.h"
 
 // 是否使用JSON文件定义按键功能
 #define USE_JSON_PROFILE 0

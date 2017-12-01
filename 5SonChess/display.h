@@ -1,6 +1,6 @@
 ﻿#pragma once
-#include "stdafx.h"
 #include "buffer.h"
+#include "declaration.h"
 
 // 将光标移动到控制台的指定位置
 // x是横坐标，y是纵坐标
@@ -26,3 +26,6 @@ void CleanCursor(int x, int y, char **Buffer);
 // 说明：本函数一次性绘制光标的四个部分。
 // 需要传入光标所指位置的坐标(行，列)，以及缓冲器数组的首地址。这里的行/列是相对于棋盘数组而言。
 void DrawCursor(int x, int y, char **Buffer);
+
+// 悔棋时恢复棋盘某个落子点的样式
+void RestoreStyle(char **Buffer, place Place);

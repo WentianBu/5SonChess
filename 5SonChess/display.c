@@ -1,4 +1,5 @@
-﻿#include "display.h"
+﻿#include "stdafx.h"
+#include "display.h"
 
 // 将光标移动到指定位置
 // x是横坐标，y是纵坐标
@@ -160,4 +161,56 @@ void DrawCursor(int x, int y, char **Buffer)
 	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y) + CENTER_OFFSET) = "└";
 	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y + 2) + CENTER_OFFSET) = "┘";
 	return;
+}
+
+void RestoreStyle(char **Buffer, place Place)
+{
+	if (Place.x == 0) // 棋盘第一行的情况
+	{
+		switch (Place.y)
+		{
+		case 0: *(Buffer + BUFFER_WIDTH * 1 + CENTER_OFFSET + 1) = "┏"; return;
+		case 14: *(Buffer + BUFFER_WIDTH * 1 + CENTER_OFFSET + 29) = "┓"; return;
+		default: *(Buffer + BUFFER_WIDTH * 1 + CENTER_OFFSET + 2* Place.y + 1) = "┯"; return;
+		}
+	}
+	else if (Place.x == 14) //棋盘最后一行的情况
+	{
+		switch (Place.y)
+		{
+		case 0: *(Buffer + BUFFER_WIDTH * 29 + CENTER_OFFSET + 1) = "┗"; return;
+		case 14: *(Buffer + BUFFER_WIDTH * 29 + CENTER_OFFSET + 29) = "┛"; return;
+		default: *(Buffer + BUFFER_WIDTH * 29 + CENTER_OFFSET + 2 * Place.y + 1) = "┷"; return;
+		}
+	}
+	else if (Place.x == 3) // 上面一行星点
+	{
+		if (Place.y == 3 || Place.y == 11)
+		{
+			*(Buffer + BUFFER_WIDTH * 7 + CENTER_OFFSET + 2 * Place.y + 1) = "╋";
+			return;
+		}
+	}
+	else if (Place.x == 11) // 下面一行星点
+	{
+		if (Place.y == 3 || Place.y == 11)
+		{
+			*(Buffer + BUFFER_WIDTH * 23 + CENTER_OFFSET + 2 * Place.y + 1) = "╋";
+			return;
+		}
+	}
+	else if (Place.x == 7 && Place.y == 7) //天元
+	{
+		*(Buffer + BUFFER_WIDTH * 15 + CENTER_OFFSET + 15) = "╋";
+		return;
+	}
+	else //中间的情况
+	{
+		switch (Place.y)
+		{
+		case 0: *(Buffer + BUFFER_WIDTH * (2*Place.x+1) + CENTER_OFFSET + 1) = "┠"; return;
+		case 14: *(Buffer + BUFFER_WIDTH * (2 * Place.x + 1) + CENTER_OFFSET + 29) = "┨"; return;
+		default: *(Buffer + BUFFER_WIDTH * (2 * Place.x + 1) + CENTER_OFFSET + 2 * Place.y + 1) = "┼"; return;
+		}
+	}
 }

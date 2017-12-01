@@ -73,7 +73,7 @@ EXP int xCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 	}
 	return iNumx;
 }
-EXP int yCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
+int yCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 {
 	int iNumy = 1;
 	for (int i = 1; i <5; i++)//向左方向上检查
@@ -108,7 +108,7 @@ EXP int yCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 	}
 	return iNumy;
 }
-EXP int sCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
+int sCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 {
 	int iNums = 1;
 	for (int i = 1; i < 5; i++)//向左上方向检查
@@ -152,7 +152,7 @@ EXP int sCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 	}
 	return iNums;
 }
-EXP int tCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
+int tCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 {
 	int iNumt = 1;
 	for (int i = 1; i <5; i++)//在右上方向上检查
@@ -196,7 +196,7 @@ EXP int tCount(int x, int y, int iPosition[15][15], int iPersonInTurn)
 	return iNumt;
 }
 
-EXP void xAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//x方向上连子两边的颜色
+void xAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//x方向上连子两边的颜色
 {
 	for (int i = 0; i<5; x++)
 	{
@@ -221,7 +221,7 @@ EXP void xAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn
 		}
 	}
 }
-EXP void yAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//y方向上连子两边的颜色
+void yAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//y方向上连子两边的颜色
 {
 	for (int i = 0; i<5; x++)
 	{
@@ -246,7 +246,7 @@ EXP void yAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn
 		}
 	}
 }
-EXP void sAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//s方向上连子两边的颜色
+void sAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)//s方向上连子两边的颜色
 {
 	for (int i = 0; i<5; x++)
 	{
@@ -271,7 +271,7 @@ EXP void sAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn
 		}
 	}
 }
-EXP void tAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)
+void tAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn)
 {
 	for (int i = 0; i<5; x++)
 	{
@@ -298,7 +298,7 @@ EXP void tAiCheckTwoSides(int x, int y, int iPosition[15][15], int iPersonInTurn
 	}
 }
 
-EXP int AiCheck(int x, int y, int iPosition[15][15], int iPersonInTurn, int iNum, int TwoSidesColor[])
+int AiCheck(int x, int y, int iPosition[15][15], int iPersonInTurn, int iNum, int TwoSidesColor[])
 {
 	int iValue;
 	if (iNum == 5)//连子为5的所有情况
@@ -794,46 +794,33 @@ EXP int AiCheck(int x, int y, int iPosition[15][15], int iPersonInTurn, int iNum
 	return iValue;
 }
 
-EXP int AiDecision(int x, int y, int iPosition[15][15], int iPersonInTurn, HMODULE hSelf)
+int AiDecision(int x, int y, int iPosition[15][15], int iPersonInTurn)
 {
 	/*	int iNumx = MianYi;
 	int iNumy = MianYi;
 	int iNums = MianYi;
 	int iNumt = MianYi;*/
-	typedef int(*tFuncpReturnFourInt)(int, int, int (*)[15] , int);
-	typedef int(*tFuncpAiCheck)(int, int, int (*)[15], int, int, int *);
-
-	tFuncpReturnFourInt funcpxCount = (tFuncpReturnFourInt)GetProcAddress(hSelf, "xCount");
-	tFuncpReturnFourInt funcpyCount = (tFuncpReturnFourInt)GetProcAddress(hSelf, "yCount");
-	tFuncpReturnFourInt funcpsCount = (tFuncpReturnFourInt)GetProcAddress(hSelf, "sCount");
-	tFuncpReturnFourInt funcptCount = (tFuncpReturnFourInt)GetProcAddress(hSelf, "tCount");
-
-	tFuncpReturnFourInt funcpxAiCheckTwoSides = (tFuncpReturnFourInt)GetProcAddress(hSelf, "xAiCheckTwoSides");
-	tFuncpReturnFourInt funcpyAiCheckTwoSides = (tFuncpReturnFourInt)GetProcAddress(hSelf, "yAiCheckTwoSides");
-	tFuncpReturnFourInt funcpsAiCheckTwoSides = (tFuncpReturnFourInt)GetProcAddress(hSelf, "sAiCheckTwoSides");
-	tFuncpReturnFourInt funcptAiCheckTwoSides = (tFuncpReturnFourInt)GetProcAddress(hSelf, "tAiCheckTwoSides");
 	
-	tFuncpAiCheck funcpAiCheck = (tFuncpAiCheck)GetProcAddress(hSelf, "AiCheck");
 
-	(*funcpxCount)(x, y, iPosition, iPersonInTurn);
-	(*funcpyCount)(x, y, iPosition, iPersonInTurn);
-	(*funcpsCount)(x, y, iPosition, iPersonInTurn);
-	(*funcptCount)(x, y, iPosition, iPersonInTurn);
+	xCount(x, y, iPosition, iPersonInTurn);
+	yCount(x, y, iPosition, iPersonInTurn);
+	sCount(x, y, iPosition, iPersonInTurn);
+	tCount(x, y, iPosition, iPersonInTurn);
 
-	(*funcpxAiCheckTwoSides)(x, y, iPosition, iPersonInTurn);
-	(*funcpyAiCheckTwoSides)(x, y, iPosition, iPersonInTurn);
-	(*funcpsAiCheckTwoSides)(x, y, iPosition, iPersonInTurn);
-	(*funcptAiCheckTwoSides)(x, y, iPosition, iPersonInTurn);
+	xAiCheckTwoSides(x, y, iPosition, iPersonInTurn);
+	yAiCheckTwoSides(x, y, iPosition, iPersonInTurn);
+	sAiCheckTwoSides(x, y, iPosition, iPersonInTurn);
+	tAiCheckTwoSides(x, y, iPosition, iPersonInTurn);
 
-	iPValue = (*funcpAiCheck)(x, y, iPosition, iPersonInTurn, (*funcpxCount)(x, y, iPosition, iPersonInTurn), xTwoSidesColor)
-		+ (*funcpAiCheck)(x, y, iPosition, iPersonInTurn, (*funcpyCount)(x, y, iPosition, iPersonInTurn), yTwoSidesColor)
-		+ (*funcpAiCheck)(x, y, iPosition, iPersonInTurn, (*funcpsCount)(x, y, iPosition, iPersonInTurn), sTwoSidesColor)
-		+ (*funcpAiCheck)(x, y, iPosition, iPersonInTurn, (*funcptCount)(x, y, iPosition, iPersonInTurn), tTwoSidesColor);
+	iPValue = AiCheck(x, y, iPosition, iPersonInTurn, xCount(x, y, iPosition, iPersonInTurn), xTwoSidesColor)
+		+ AiCheck(x, y, iPosition, iPersonInTurn, yCount(x, y, iPosition, iPersonInTurn), yTwoSidesColor)
+		+ AiCheck(x, y, iPosition, iPersonInTurn, sCount(x, y, iPosition, iPersonInTurn), sTwoSidesColor)
+		+ AiCheck(x, y, iPosition, iPersonInTurn, tCount(x, y, iPosition, iPersonInTurn), tTwoSidesColor);
 
 	return iPValue; // 针对单方计分的总分
 }
 
-EXP place API_Main(int iPosition[15][15], int Person, HMODULE hSelf)
+EXP place API_Main(int iPosition[15][15], int Person)
 {
 	// Person的记录标准是1和2，故主函数调用传值应当加1
 
@@ -841,9 +828,6 @@ EXP place API_Main(int iPosition[15][15], int Person, HMODULE hSelf)
 	place Place;
 	Place.x = 0;
 	Place.y = 0;
-
-	typedef int(*tFuncpAiDecision)(int, int, int (*)[15], int, HMODULE);
-	tFuncpAiDecision funcpAiDecision = (tFuncpAiDecision)GetProcAddress(hSelf, "AiDecision");
 
 	int MAXScore = -1;
 	place *p = NULL;
@@ -873,7 +857,7 @@ EXP place API_Main(int iPosition[15][15], int Person, HMODULE hSelf)
 		{
 			if (iPosition[i][j] == 0)
 			{
-				int CurrentScore = (*funcpAiDecision)(i, j, iPosition, Person, hSelf) + (*funcpAiDecision)(i, j, iPosition, 3 - Person, hSelf) / 2 + iPositionValue[i][j];
+				int CurrentScore = AiDecision(i, j, iPosition, Person) + AiDecision(i, j, iPosition, 3 - Person) / 2 + iPositionValue[i][j];
 				if (CurrentScore == MAXScore)
 				{
 					p = (place *)realloc(p, sizeof(place)*(k+1));

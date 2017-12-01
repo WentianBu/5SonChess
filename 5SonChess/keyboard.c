@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "keyboard.h"
 
 #if USE_JSON_PROFILE==0
