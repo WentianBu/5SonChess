@@ -16,6 +16,5 @@
 
 // 自定义的且基本固定的模块
 #include "display.h"
-#include "buffer.h"
 #include "declaration.h"
 #include "judge.h"

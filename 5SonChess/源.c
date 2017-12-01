@@ -2,7 +2,7 @@
 #include "keyboard.h"
 #include "LoadAI.h"
 #include "record.h"
-
+#include "game.h"
 
 //显示主菜单并且选择功能，将选择的功能编号返回至主函数
 int MainMenu(char **Buffer, char **OldBuffer)
@@ -17,7 +17,7 @@ int MainMenu(char **Buffer, char **OldBuffer)
 	*(Buffer + 16 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "3. 双AI调试";
 	*(Buffer + 18 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "4. 查看规则";
 	*(Buffer + 20 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "5. 退出游戏";
-	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 19) / 2) = "Powered By Wentian Bu  Version 1.2.0";
+	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 19) / 2) = "Powered By Wentian Bu  Version 1.3.0";
 	for (int i = (BUFFER_WIDTH - 20) / 2; i < (BUFFER_WIDTH + 20) / 2; i++)
 		*(Buffer + 25 * BUFFER_WIDTH + i) = "—";
 	RefreshScreen(OldBuffer, Buffer);
@@ -59,376 +59,165 @@ int MainMenu(char **Buffer, char **OldBuffer)
 void PVP(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
-	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
-	place CursorPlace; // 当前光标所指位置
-	// 创建记录棋局的链表
-	ChainNode *pNode = NULL;
-	errno_t err = CreateRecordChain(&pNode);
-	if (err != 0)
-	{
-		MessageBox(NULL, _T("Fatal error 0x00001: Fail to create record chain."), _T("Error"), MB_ICONERROR|MB_SETFOREGROUND);
-		return;
-	} //处理错误，如果出现则中止游戏并弹出消息框警告
-	InitiateBuffer(Buffer);
-	RefreshScreen(OldBuffer, Buffer);
-	DrawBlankChessboard(Buffer);
-	RefreshScreen(OldBuffer, Buffer);
-	CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
-
-	// 移动光标和落子
-	int Winner = -1, Round = 1;
-	while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
-	{
-		rewind(stdin);
-		DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-		RefreshScreen(OldBuffer, Buffer);
-		int key = GetKey();
-		if (key == CONFRM && Chess[CursorPlace.x][CursorPlace.y] == 0) // 落子
-		{
-			if (CurrentPlayer == 0)
-			{
-				Chess[CursorPlace.x][CursorPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "●";
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			else if (CurrentPlayer == 1)
-			{
-				Chess[CursorPlace.x][CursorPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "○";
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			
-			//记录棋步
-			err = RecordStep(&pNode, Round, 0, CurrentPlayer, CursorPlace);
-			if (err != 0)
-			{
-				MessageBox(NULL, _T("Fatal error 0x00002: Fail to record a step."), _T("Error"), MB_ICONERROR|MB_SETFOREGROUND);
-				return;
-			} //处理错误，如果出现则中止游戏并弹出消息框警告
-			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
-			Round++;
-			CurrentPlayer = !CurrentPlayer;
-		}
-		else if (key == REGRET)
-		{
-			place LastPlace;
-			// 处理悔棋操作
-			err = RegretStep(&pNode, &LastPlace);
-			if (err != 0)
-			{
-				MessageBox(NULL, _T("都悔到头了，有意思吗？"), _T("无棋可悔"), MB_ICONWARNING|MB_SETFOREGROUND);
-			} //处理无棋可悔的情况，如果出现则弹出消息框警告
-			if (err == 0)
-			{
-				Chess[LastPlace.x][LastPlace.y] = 0;
-				Round--;//回合数减1
-				CurrentPlayer = !CurrentPlayer;
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace = LastPlace;
-				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				RestoreStyle(Buffer, LastPlace);
-				RefreshScreen(OldBuffer, Buffer);
-			}
-		}
-		else if (key == EXIT)
-		{
-			FreeHeapMemory(Buffer);
-			return; // 放弃当前游戏
-		}
-		else if (key >= 1 && key <= 4) // 处理方向键
-		{
-			CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-			switch (key)
-			{
-			case MOVE_UP: CursorPlace.x--; break;
-			case MOVE_DOWN: CursorPlace.x++; break;
-			case MOVE_LEFT: CursorPlace.y--; break;
-			case MOVE_RIGHT: CursorPlace.y++; break;
-			default: break;
-			}
-
-			// 光标移出棋盘时的循环
-			if (CursorPlace.y == -1) CursorPlace.y = CHESSBOARD_WIDTH - 1;
-			if (CursorPlace.y == CHESSBOARD_WIDTH) CursorPlace.y = 0;
-			if (CursorPlace.x == -1) CursorPlace.x = CHESSBORAD_LINES - 1;
-			if (CursorPlace.x == CHESSBORAD_LINES) CursorPlace.x = 0;
-		}
-	}
-	// 单次游戏结束时的处理
+	AIMark Person = { API_PERSON,0 };
+	int Winner = GameManager(1, Person, Person, Buffer, OldBuffer);
 	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES); //光标移到棋盘下端
 	switch (Winner)
 	{
 	case 0: printf("黑方获得胜利！\n"); break;
 	case 1: printf("白方获得胜利！\n"); break;
-	default:printf("平局！\n");
+	case 2: printf("平局！\n"); break;
+	case 4: printf("已放弃本局游戏。\n"); break;
+	default:
 		break;
 	}
-	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
-	system("pause");
-	DeleteRecordChain(&pNode);
 	FreeHeapMemory(Buffer);
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
+	printf("按任意键回到主菜单...");
+	_getch();
 	return;
 }
 
 void PVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	int AI_Type;
+	AIMark Person = { API_PERSON,0 };
+	AIMark DLL;
+	int Winner;
 	printf("请选择AI使用的动态链接库...\n");
-	HMODULE hDllLib = OpenDLL(&AI_Type); //打开dll文件
-	if (hDllLib == 0) return;
+	DLL.hLib = OpenDLL(&(DLL.AI_Type)); //打开dll文件
+	if (DLL.hLib == 0) return;
 
-	char mode = '0';
-	unsigned int Turn; // 当前选手，0为玩家，1为AI
+	char choice = '0';
+	unsigned int mode; // 传递给游戏管理器的模式代号
 	printf("请选择(F)先手 / (S)后手:\n");
-	while (mode != 's'&&mode != 'S'&&mode != 'f'&&mode != 'F')
+	while (choice != 's'&&choice != 'S'&&choice != 'f'&&choice != 'F')
 	{
 		rewind(stdin);
-		mode = _getch();
+		choice = _getch();
 	}
-	if (mode == 'f' || mode == 'F') Turn = 0;
-	else if (mode == 's' || mode == 'S') Turn = 1;
-
-	// 初始化对局
-	system("cls");
-	int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
-	unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
-	place CursorPlace; // 当前光标所指位置
-	InitiateBuffer(Buffer);
-	RefreshScreen(OldBuffer, Buffer);
-	DrawBlankChessboard(Buffer);
-	RefreshScreen(OldBuffer, Buffer);
-	CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
-	int Winner = -1, Round = 1;
-
-	while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
+	if (choice == 'f' || choice == 'F')
 	{
-		if (Turn == 0)
-		{
-			// 玩家下棋
-			rewind(stdin);
-			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-			RefreshScreen(OldBuffer, Buffer);
-			int key = GetKey();
-			if (key == CONFRM && Chess[CursorPlace.x][CursorPlace.y] == 0)
-			{
-				if (CurrentPlayer == 0)
-				{
-					Chess[CursorPlace.x][CursorPlace.y] = 1;
-					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "●";
-					RefreshScreen(OldBuffer, Buffer);
-				}
-				else if (CurrentPlayer == 1)
-				{
-					Chess[CursorPlace.x][CursorPlace.y] = 2;
-					*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 1) + (2 * CursorPlace.y + 1) + CENTER_OFFSET) = "○";
-					RefreshScreen(OldBuffer, Buffer);
-				}
-
-				Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
-				Round++;
-				CurrentPlayer = !CurrentPlayer;
-				Turn = !Turn; //切换玩家
-			}
-			else if (key == EXIT)
-			{
-				FreeHeapMemory(Buffer);
-				return;
-			}
-			else if (key >= 1 && key <= 4)
-			{
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				switch (key)
-				{
-				case MOVE_UP: CursorPlace.x--; break;
-				case MOVE_DOWN: CursorPlace.x++; break;
-				case MOVE_LEFT: CursorPlace.y--; break;
-				case MOVE_RIGHT: CursorPlace.y++; break;
-				default: break;
-				}
-				// 光标移出棋盘时的循环
-				if (CursorPlace.y == -1) CursorPlace.y = 14;
-				if (CursorPlace.y == 15) CursorPlace.y = 0;
-				if (CursorPlace.x == -1) CursorPlace.x = 14;
-				if (CursorPlace.x == 15) CursorPlace.x = 0;
-			}
-
-		}
-		else if (Turn == 1)
-		{
-			// AI下棋
-			place AIPlace;
-			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-			RefreshScreen(OldBuffer, Buffer);
-			if (AI_Type == 1)
-			{
-				tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib, "API_Main");
-				AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
-			}
-			if (CurrentPlayer == 0)
-			{
-				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "●";
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace = AIPlace;
-				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			else if (CurrentPlayer == 1)
-			{
-				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "○";
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace = AIPlace;
-				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			Winner = Check(AIPlace.x, AIPlace.y, CurrentPlayer, Chess[0]);
-			Round++;
-			CurrentPlayer = !CurrentPlayer;
-			Turn = !Turn; //切换玩家
-		}
+		mode = 2;
+		system("cls");
+		Winner = GameManager(mode, Person, DLL, Buffer, OldBuffer);
 	}
+	else if (choice == 's' || choice == 'S')
+	{
+		mode = 3;
+		system("cls");
+		Winner = GameManager(mode, DLL, Person, Buffer, OldBuffer);
+	}
+	
 	// 单次游戏结束后的处理
 	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 	switch (Winner)
 	{
 	case 0: printf("黑方获得胜利！\n"); break;
 	case 1: printf("白方获得胜利！\n"); break;
-	default:printf("平局！\n");
+	case 2: printf("平局！\n"); break;
+	case 4: printf("已放弃本局游戏。\n"); break;
+	default:
 		break;
 	}
-	FreeLibrary(hDllLib);
+	FreeLibrary(DLL.hLib);
 	FreeHeapMemory(Buffer);
 	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
-	system("pause");
+	printf("按任意键回到主菜单...");
+	_getch();
 	return;
 }
 
 void EVE(char **Buffer, char **OldBuffer)
 {
 	system("cls");
-	HMODULE hDllLib1 = NULL, hDllLib2 = NULL;
-	int AI_Type1, AI_Type2;
+	AIMark DLL1, DLL2;
 	printf("请选择黑方使用的AI模组...\n");
-	hDllLib1 = OpenDLL(&AI_Type1);
-	if (hDllLib1 == 0) return;
+	DLL1.hLib = OpenDLL(&DLL1.AI_Type);
+	if (DLL1.hLib == 0) return;
 	printf("请选择白方使用的AI模组...\n");
-	hDllLib2 = OpenDLL(&AI_Type2);
-	if (hDllLib2 == 0) return;
+	DLL2.hLib = OpenDLL(&DLL2.AI_Type);
+	if (DLL2.hLib == 0) return;
 
 	printf("是否进入统计调试模式？(Y/N)\n");
-	char mode = _getch();
-	int GameNumber = 0, BlackWin = 0, WhiteWin = 0, NoWin = 0;
-	if (mode == 'Y' || mode == 'y')
+	char choice = _getch();
+	int GameNumber = 0;
+	if (choice == 'Y' || choice == 'y')
 	{
 		printf("请输入测试盘数：");
 		scanf_s("%d", &GameNumber);
-		printf("进入统计调试模式……\n");
+		printf("进入统计调试模式...\n");
 	}
 	else
 	{
 		GameNumber = 1;
 		printf("请选择调试模式：（T）单步调试  （S）慢速调试（间隔1.0s）  （M）中速调试（间隔0.5s）  （F）快速调试（间隔0.2s）  （D）一次性调试（默认）\n");
 		rewind(stdin);
-		mode = _getch();
+		choice = _getch();
 	}
-	int _GameNumber = GameNumber;
-	system("pause");
-	system("cls");
-	while (_GameNumber > 0)
+
+	int mode = 8; // 传给游戏管理器的模式代码
+	switch (choice)
 	{
-		rewind(stdin);
-		int Chess[CHESSBORAD_LINES][CHESSBOARD_WIDTH] = { 0 }; // 记录当前棋盘状态，0为空，1为黑方，2为白方
-		unsigned int CurrentPlayer = 0; // 当前选手，0为黑方，1为白方
-		place CursorPlace; // 当前光标所指位置
-		// 注：下面这两句关系到统计调试时运行速度和棋盘是否闪烁
-		// 若注释掉则可以明显提高运行速度，且棋盘不闪烁，只有棋子快速变化
-		//InitiateBuffer(Buffer);
-		//RefreshScreen(OldBuffer, Buffer);
-		DrawBlankChessboard(Buffer);
-		RefreshScreen(OldBuffer, Buffer);
-		CursorPlace.x = CursorPlace.y = 7; // 光标初始位于棋盘中心点（棋盘坐标0~14）
-
-		int Winner = -1, Round = 1;
-		while (Winner == -1 && Round <= MAX_ROUND_NUMBER)
-		{
-			place AIPlace;
-			DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-			RefreshScreen(OldBuffer, Buffer);
-			if (CurrentPlayer == 0)
-			{
-				if (AI_Type1 == 1)
-				{
-					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib1, "API_Main");
-					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
-				}
-				Chess[AIPlace.x][AIPlace.y] = 1;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "●";
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace = AIPlace;
-				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			else if (CurrentPlayer == 1)
-			{
-				if (AI_Type2 == 1)
-				{
-					tFuncpAI_Zhang funcpAI_Zhang = (tFuncpAI_Zhang)GetProcAddress(hDllLib2, "API_Main");
-					AIPlace = (*funcpAI_Zhang)(Chess, CurrentPlayer + 1);
-				}
-				Chess[AIPlace.x][AIPlace.y] = 2;
-				*(Buffer + BUFFER_WIDTH * (2 * AIPlace.x + 1) + (2 * AIPlace.y + 1) + CENTER_OFFSET) = "○";
-				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				CursorPlace = AIPlace;
-				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				RefreshScreen(OldBuffer, Buffer);
-			}
-			Winner = Check(AIPlace.x, AIPlace.y, CurrentPlayer, Chess[0]);
-			Round++;
-			CurrentPlayer = !CurrentPlayer;
-
-			switch (mode)
-			{
-			case 'T':_getch(); break;
-			case 't':_getch(); break;
-			case 'S':Sleep(1000); break;
-			case 's':Sleep(1000); break;
-			case 'M':Sleep(500); break;
-			case 'm':Sleep(500); break;
-			case 'F':Sleep(200); break;
-			case 'f':Sleep(200); break;
-			default:break;
-			}
-		}
-		// 单局游戏结束后的处理
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
-		switch (Winner)
-		{
-		case 0: printf("黑方获得胜利！");
-			BlackWin++;
-			break;
-		case 1: printf("白方获得胜利！");
-			WhiteWin++;
-			break;
-		default: printf("平局！");
-			NoWin++;
-			break;
-		}
-		_GameNumber--;
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 1);
-		printf("已进行%d局，剩余%d局", GameNumber - _GameNumber, _GameNumber);
-		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 2);
-		printf("黑胜%d局，白胜%d局，平局%d局", BlackWin, WhiteWin, NoWin);
+	case 'T':case 't':mode=4; break;
+	case 'S':case 's':mode=5; break;
+	case 'M':case 'm':mode=6; break;
+	case 'F':case 'f':mode=7; break;
+	default:break;
 	}
-	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 3);
-	printf("共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
-	FreeLibrary(hDllLib1);
-	FreeLibrary(hDllLib2);
+	char TestAgain = 'N';
+	do
+	{
+		int BlackWin = 0, WhiteWin = 0, NoWin = 0;
+		int _GameNumber = GameNumber;
+		
+		printf("按任意键开始...\n");
+		_getch();
+		system("cls");
+		if (TestAgain == 'Y' || TestAgain == 'y')
+		{
+			InitiateBuffer(Buffer);
+			RefreshScreen(OldBuffer, Buffer);
+			DrawBlankChessboard(Buffer);
+			RefreshScreen(OldBuffer, Buffer);
+		}
+		while (_GameNumber > 0)
+		{
+			rewind(stdin);
+			int Winner = GameManager(mode, DLL1, DLL2, Buffer, OldBuffer);
+			// 单局游戏结束后的处理
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
+			switch (Winner)
+			{
+			case 0: printf("黑方获得胜利！");
+				BlackWin++;
+				break;
+			case 1: printf("白方获得胜利！");
+				WhiteWin++;
+				break;
+			case 2: printf("平局！");
+				NoWin++;
+				break;
+			}
+			_GameNumber--;
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 1);
+			printf("已进行%d局，剩余%d局", GameNumber - _GameNumber, _GameNumber);
+			gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 2);
+			printf("黑胜%d局，白胜%d局，平局%d局", BlackWin, WhiteWin, NoWin);
+		}
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 3);
+		printf("共%d局，黑胜%d局，白胜%d局，平局%d局。\n", GameNumber, BlackWin, WhiteWin, NoWin);
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 4);
+		printf("再次测试？（Y/N）");
+		rewind(stdin);
+		TestAgain = _getch();
+	} while (TestAgain=='Y'||TestAgain=='y');
+	FreeLibrary(DLL1.hLib);
+	FreeLibrary(DLL2.hLib);
 	FreeHeapMemory(Buffer);
-	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 4);
-	system("pause");
+	gotoxy(2 * CENTER_OFFSET, BUFFER_LINES + 5);
+	printf("按任意键回到主菜单...\n");
+	_getch();
 	return;
 }
 
