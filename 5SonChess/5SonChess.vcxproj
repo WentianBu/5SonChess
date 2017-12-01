@@ -19,11 +19,22 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="buffer.c" />
-    <ClCompile Include="display.c" />
-    <ClCompile Include="keyboard.c" />
-    <ClCompile Include="LoadAI.c" />
-    <ClCompile Include="record.c" />
+    <ClCompile Include="buffer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="display.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="keyboard.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="LoadAI.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="record.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="stdafx.cpp" />
     <ClCompile Include="源.c" />
   </ItemGroup>
@@ -35,7 +46,7 @@
     <ClInclude Include="LoadAI.h" />
     <ClInclude Include="record.h" />
     <ClInclude Include="stdafx.h" />
-    <ClInclude Include="UnionDefine.h" />
+    <ClInclude Include="declaration.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="rules\rules.html" />

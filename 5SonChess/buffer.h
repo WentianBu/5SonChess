@@ -1,5 +1,4 @@
 ﻿#pragma once
-#include "stdafx.h"
 // buffer.h
 // 定义了缓冲器相关的公用宏，以及缓冲器相关的内存操作函数
 

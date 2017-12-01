@@ -1,4 +1,5 @@
-﻿#include "record.h"
+﻿#include "stdafx.h"
+#include "record.h"
 
 // 创建存储游戏数据的双向链表
 // 注意：pp是 指向 “指向ChainNode型结点的指针” 的指针

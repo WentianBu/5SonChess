@@ -1,10 +1,10 @@
 # 5SonChess
-This is a **gobang** C program with AI. This program is the big assignment of UCAS C Program Language Course.
+This is a **gobang** C program with AI. This program is programmed according to the C99 standard, and tested under the **Microsoft Visual Studio 2017 Community IDE**. This project is the coursework of the C Program Language Course in UCAS.
 
 ----------------------------------------------------------------
 
 # 五子棋
-这是一个带有AI的C语言**五子棋**程序，按照C99标准编写，作为UCAS的C语言大作业。
+这是一个带有AI的C语言**五子棋**程序，按照C99标准编写，在 **Microsoft Visual Studio 2017 Community** 集成开发环境中编译并测试通过，作为UCAS的C语言大作业。
 
 ## 特性
 1. 键盘操作交互，大部分情况可以通过方向键来选择选项和移动棋盘光标，无需输入坐标或者选项编号，操作方式更加友好。
@@ -73,19 +73,25 @@ This is a **gobang** C program with AI. This program is the big assignment of UC
 	```
 	你也可以定义一个宏来少打几个字母，实现同样的功能。
 
-## 不足和开发目标
-1. 显示引擎仍然使用ANSI方式处理中文和制表字符，因此略显过时和累赘。将来可能对显示引擎进行升级，完全采用新的架构，并做成一个更加通用的引擎。
+## 开发目标
+1. 设置自定义：通过JSON文件支持更加丰富、自定义程度更高的设置项目。AI的参数将可以随时自定义。
 
-2. 功能较为单一，仅支持按照本地标准编写的DLL AI程序。将来可能加入对弈心协议（Yixin-protocol）的支持，使之能够加载弈心引擎。
+2. 极限挑战：添加对Yixin协议的支持。
 >Yixin protocol is a protocol derived from Gomocup protocol. It is designed because Gomocup protocol has some limitation. Firstly used by Yixin, Yixin protocol supports more commands than Gomocup protocol. Yixin protocol is fully implemented in Gomoku/Renju GUI Yixin Board.
 
-关于弈心协议的更多内容详见[弈心协议的GitHub页面](https://github.com/accreator/Yixin-protocol)
+关于弈心协议的更多内容详见[弈心协议的GitHub页面](https://github.com/accreator/Yixin-protocol)。
 
-3. 无法记录对局情况。将来可能加入读写文件的模块，添加保存复盘和读取复盘的功能。复盘文件的格式可能采用xml文件，便于读取和理解。
+3. 复盘文件：将单局游戏保存到xml文件中，也可以读取xml文件观看保存的比赛（针对非统计调试模式此功能可用）。
+
+4. 网络对战：通过TCP协议与互联网上运行本客户端的其他电脑一起游戏。输入IP地址和端口号即可连接。
+
+5. 鼠标操作：在控制台中添加对鼠标点击下棋的支持（需要禁用控制台的快速编辑模式），且程序中不能出现system()函数。将来会使用Win 32 Console API重写相关内容避免使用system函数。
+
+6. 界面升级：添加计时器模块，并显示在棋盘旁边。
 
 Wentian Bu
 
-2017-11-09
+2017-11-28
 
 -------------------------------------------------------
 -------------------------------------------------------

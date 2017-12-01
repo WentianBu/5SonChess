@@ -59,10 +59,10 @@
     <ClInclude Include="LoadAI.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="UnionDefine.h">
+    <ClInclude Include="record.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="record.h">
+    <ClInclude Include="declaration.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

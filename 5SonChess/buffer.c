@@ -1,4 +1,5 @@
-﻿#include "buffer.h"
+﻿#include "stdafx.h"
+#include "buffer.h"
 
 //初始化缓冲器，在其中填充空格
 void InitiateBuffer(char **p)

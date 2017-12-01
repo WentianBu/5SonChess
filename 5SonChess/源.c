@@ -1,9 +1,6 @@
 ﻿#include "stdafx.h"
-#include "judge.h"
 #include "keyboard.h"
-#include "buffer.h"
 #include "LoadAI.h"
-#include "UnionDefine.h"
 #include "record.h"
 
 
@@ -70,7 +67,7 @@ void PVP(char **Buffer, char **OldBuffer)
 	errno_t err = CreateRecordChain(&pNode);
 	if (err != 0)
 	{
-		MessageBox(NULL, _T("Fatal error 0x00001: Fail to create record chain."), _T("Error"), MB_ICONERROR);
+		MessageBox(NULL, _T("Fatal error 0x00001: Fail to create record chain."), _T("Error"), MB_ICONERROR|MB_SETFOREGROUND);
 		return;
 	} //处理错误，如果出现则中止游戏并弹出消息框警告
 	InitiateBuffer(Buffer);
@@ -106,7 +103,7 @@ void PVP(char **Buffer, char **OldBuffer)
 			err = RecordStep(&pNode, Round, 0, CurrentPlayer, CursorPlace);
 			if (err != 0)
 			{
-				MessageBox(NULL, _T("Fatal error 0x00002: Fail to record a step."), _T("Error"), MB_ICONERROR);
+				MessageBox(NULL, _T("Fatal error 0x00002: Fail to record a step."), _T("Error"), MB_ICONERROR|MB_SETFOREGROUND);
 				return;
 			} //处理错误，如果出现则中止游戏并弹出消息框警告
 			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
@@ -130,8 +127,7 @@ void PVP(char **Buffer, char **OldBuffer)
 				CleanCursor(CursorPlace.x, CursorPlace.y, Buffer);
 				CursorPlace = LastPlace;
 				DrawCursor(CursorPlace.x, CursorPlace.y, Buffer);
-				*(Buffer + BUFFER_WIDTH * (2 * LastPlace.x + 1) + (2 * LastPlace.y + 1) + CENTER_OFFSET) = "┼";
-				// TODO：此处应该处理边界和星点图案，使用函数获取
+				RestoreStyle(Buffer, LastPlace);
 				RefreshScreen(OldBuffer, Buffer);
 			}
 		}

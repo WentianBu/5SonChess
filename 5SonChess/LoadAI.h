@@ -3,9 +3,6 @@
 // 用于选择和加载DLL模组
 // 将来和加载文件相关的函数都会放在这里
 
-#include "stdafx.h"
-#include "UnionDefine.h"
-
 // 接口定义
 typedef place(*tFuncpAI_Zhang)(int(*)[15], int); // 张宁鑫的旧版API的接口
 

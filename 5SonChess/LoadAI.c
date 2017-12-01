@@ -1,4 +1,5 @@
-﻿#include "LoadAI.h"
+﻿#include "stdafx.h"
+#include "LoadAI.h"
 
 // 加载dll
 HMODULE OpenDLL(int *AI_type)

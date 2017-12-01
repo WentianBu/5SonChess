@@ -1,6 +1,4 @@
 ﻿#pragma once
-#include "stdafx.h"
-#include "UnionDefine.h"
 // record.h
 // 用于详细记录单局游戏的过程
 // 支持悔棋和复盘功能，并可读取复盘
@@ -53,7 +51,7 @@ typedef struct ChainNode
 {
 	unsigned int ID; // 结点ID，从1开始存储数据，0为头结点
 	struct StepRecord step;
-	struct StepRecord *pre, *next;
+	struct ChainNode *pre, *next;
 }ChainNode;
 
 // 创建双向链表（头结点的指针均置空）
@@ -68,18 +66,7 @@ errno_t DeleteRecordChain(ChainNode **pp);
 // 若返回非0则代表添加失败，本局游戏应当中止
 errno_t RecordStep(ChainNode ** pp, int Round, enum PlayerType pt, unsigned int player, place Place);
 
-
-
 // 悔一步棋并将悔棋的链表结点删除
 // 注意：返回值是错误码，悔的棋的位置通过指针传回
+// 若返回值不为0代表已经无棋可悔
 errno_t RegretStep(ChainNode ** pp, place * pPlace);
-
-
-
-// 在链表尾部添加节点
-// 传入指向“指向链表尾部节点的指针”的指针,添加成功后“指向链表尾部结点的指针”将会指向新的尾部节点
-// 链表结点ID自动添加
-// errno_t AddRecordNode(ChainNode **pp);
-
-// 从链表尾部删除结点
-// errno_t DeleteRecordNode(ChainNode **pp);
