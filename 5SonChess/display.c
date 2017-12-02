@@ -1,20 +1,37 @@
 ﻿#include "stdafx.h"
 #include "display.h"
 
-// 将光标移动到指定位置
-// x是横坐标，y是纵坐标
+
 
 //初始化缓冲器，在其中填充空格
 void InitiateBuffer(char **p)
 {
-	for (int i = 0; i < BUFFER_LINES * BUFFER_WIDTH; i++)
+	for (int i = 0; i < BUFFER_HEIGHT * BUFFER_WIDTH; i++)
 	{
 		*p = "  ";
 		p++;
 	}
 }
 
+void CleanScreen(char **Buffer, char **OldBuffer)
+{
+	char **p = OldBuffer;
+	// 在旧缓冲器内全部填充NULL
+	for (int i = 0; i < BUFFER_HEIGHT * BUFFER_WIDTH; i++)
+	{
+		*p = NULL;
+		p++;
+	}
+	// 新缓冲器填充空格
+	InitiateBuffer(Buffer);
+	// 刷新屏幕，此时由于新旧缓冲器内容不同，屏幕上所有位置会被强行打印空格
+	RefreshScreen(OldBuffer, Buffer);
+	return;
+}
 
+
+// 将光标移动到指定位置
+// x是横坐标，y是纵坐标
 void gotoxy(short x, short y)
 {
 	COORD coord = { x, y };
@@ -35,7 +52,8 @@ void gotoxy(short x, short y)
 void RefreshScreen(char **OldBuffer, char **Buffer)
 {
 	//i行，j列
-	for (int i = 0; i < BUFFER_LINES; i++)
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	for (int i = 0; i < BUFFER_HEIGHT; i++)
 	{
 		for (int j = 0; j < BUFFER_WIDTH; j++)
 		{
@@ -47,7 +65,8 @@ void RefreshScreen(char **OldBuffer, char **Buffer)
 			}
 		}
 	}
-	gotoxy(2 * (BUFFER_WIDTH - 1), BUFFER_LINES - 1);
+	// 由于控制台光标设置为隐藏，故这里可以不需要移动光标，节省时间
+	// gotoxy(2 * (BUFFER_WIDTH - 1), BUFFER_LINES - 1);
 	return;
 }
 
