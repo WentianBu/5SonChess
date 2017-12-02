@@ -255,3 +255,43 @@ void FreeHeapMemory(char **Buffer)
 	}
 	return;
 }
+
+
+// 列表选择功能，用于纵向列表选择光标的打印和选择，自动居中
+int ListChoose(char ** Buffer, char ** OldBuffer, unsigned int LineNum, unsigned int ItemNum, int LeftCenterOffset, int RightCenterOffset, int StartPointer)
+{
+	int CurrentPointer = StartPointer;
+	while (1)
+	{
+		*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "→";
+		*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "←";
+		RefreshScreen(OldBuffer, Buffer);
+		rewind(stdin);
+		int key = GetKey();
+		switch (key)
+		{
+		case MOVE_UP:
+		{
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "  ";
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "  ";
+			CurrentPointer--;
+			break;
+		}
+		case MOVE_DOWN:
+		{
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "  ";
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "  ";
+			CurrentPointer++;
+			break;
+		}
+		case CONFRM: return CurrentPointer;
+		default:
+			break;
+		}
+		//按键循环
+		if (CurrentPointer == ItemNum+1) CurrentPointer = 1;
+		else if (CurrentPointer == 0) CurrentPointer = ItemNum;
+	}
+	
+	return 0;
+}

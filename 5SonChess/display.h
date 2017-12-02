@@ -4,6 +4,7 @@
 // display模块是五子棋主程序的核心模块之一
 
 #include "declaration.h"
+#include "keyboard.h"
 
 // 以下是程序显示模块的关键宏定义
 
@@ -38,19 +39,29 @@ void RefreshScreen(char **OldBuffer, char **Buffer);
 // 说明：传入缓冲器数组的首地址。本函数只修改缓冲器内容，最后需要使用RefreshScreen()来刷新显示。
 void DrawBlankChessboard(char **Buffer);
 
+
 // 清除原有光标
 // 说明：本函数一次性清除光标的四个部分。
 // 需要传入光标所指位置的坐标(行，列)，以及缓冲器数组的首地址。这里的行/列是相对于棋盘数组而言。
 void CleanCursor(place CursorPlace, char **Buffer);
+
 
 // 绘制棋盘光标
 // 说明：本函数一次性绘制光标的四个部分。
 // 需要传入光标所指位置的坐标(行，列)，以及缓冲器数组的首地址。这里的行/列是相对于棋盘数组而言。
 void DrawCursor(place CursorPlace, char **Buffer);
 
+
 // 悔棋时恢复棋盘某个落子点的样式
 void RestoreStyle(char **Buffer, place Place);
+
 
 // 棋盘销毁时释放堆内存
 // 只需要对新缓冲器释放即可。
 void FreeHeapMemory(char **Buffer);
+
+
+// 列表选择功能（用于主菜单和其他纵向显示列表选项的地方），用于光标的移动和打印，自动居中显示
+// 传入列表首行行号（从0开始），列表项数，箭头在首行相对中心的偏移量
+// 返回用户选择的列表项号（从1开始）
+int ListChoose(char **Buffer, char **OldBuffer, unsigned int LineNum, unsigned int ItemNum, int LeftCenterOffset, int RightCenterOffset, int StartPointer);

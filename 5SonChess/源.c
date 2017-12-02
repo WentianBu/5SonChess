@@ -17,43 +17,11 @@ int MainMenu(char **Buffer, char **OldBuffer)
 	*(Buffer + 16 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "3. 双AI调试";
 	*(Buffer + 18 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "4. 查看规则";
 	*(Buffer + 20 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "5. 退出游戏";
-	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 19) / 2) = "Powered By Wentian Bu  Version 1.3.0";
+	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 19) / 2) = "Powered By Wentian Bu  Version 1.2.2";
 	for (int i = (BUFFER_WIDTH - 20) / 2; i < (BUFFER_WIDTH + 20) / 2; i++)
 		*(Buffer + 25 * BUFFER_WIDTH + i) = "—";
 	RefreshScreen(OldBuffer, Buffer);
-	int CurrentPointer = 1;
-	while (1)
-	{
-		rewind(stdin);
-		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "→";
-		*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "←";
-		RefreshScreen(OldBuffer, Buffer);
-		//读取按键
-		int key = GetKey();
-		switch (key)
-		{
-		case MOVE_UP:
-		{
-			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "  ";
-			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "  ";
-			CurrentPointer--;
-			break;
-		}
-		case MOVE_DOWN:
-		{
-			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH - 12) / 2) = "  ";
-			*(Buffer + 10 * BUFFER_WIDTH + 2 * BUFFER_WIDTH * CurrentPointer + (BUFFER_WIDTH + 10) / 2) = "  ";
-			CurrentPointer++;
-			break;
-		}
-		case CONFRM: return CurrentPointer;
-		default:
-			break;
-		}
-		//按键循环
-		if (CurrentPointer == 6) CurrentPointer = 1;
-		else if (CurrentPointer == 0) CurrentPointer = 5;
-	}
+	return ListChoose(Buffer, OldBuffer, 12, 5, 6, 5, 1);
 }
 
 void PVP(char **Buffer, char **OldBuffer)
