@@ -3,6 +3,18 @@
 
 // 将光标移动到指定位置
 // x是横坐标，y是纵坐标
+
+//初始化缓冲器，在其中填充空格
+void InitiateBuffer(char **p)
+{
+	for (int i = 0; i < BUFFER_LINES * BUFFER_WIDTH; i++)
+	{
+		*p = "  ";
+		p++;
+	}
+}
+
+
 void gotoxy(short x, short y)
 {
 	COORD coord = { x, y };
@@ -142,24 +154,24 @@ void DrawBlankChessboard(char **Buffer)
 }
 
 // 清除原有光标
-void CleanCursor(int x, int y, char **Buffer)
+void CleanCursor(place CursorPlace, char **Buffer)
 {
 	// x为行，y为列
-	*(Buffer + BUFFER_WIDTH * (2 * x) + (2 * y) + CENTER_OFFSET) = "　";
-	*(Buffer + BUFFER_WIDTH * (2 * x) + (2 * y + 2) + CENTER_OFFSET) = "　";
-	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y) + CENTER_OFFSET) = "　";
-	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y + 2) + CENTER_OFFSET) = "　";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x) + (2 * CursorPlace.y) + CENTER_OFFSET) = "　";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x) + (2 * CursorPlace.y + 2) + CENTER_OFFSET) = "　";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 2) + (2 * CursorPlace.y) + CENTER_OFFSET) = "　";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 2) + (2 * CursorPlace.y + 2) + CENTER_OFFSET) = "　";
 	return;
 }
 
 // 绘制棋盘光标
-void DrawCursor(int x, int y, char **Buffer)
+void DrawCursor(place CursorPlace, char **Buffer)
 {
 	// x为行，y为列
-	*(Buffer + BUFFER_WIDTH * (2 * x) + (2 * y) + CENTER_OFFSET) = "┌";
-	*(Buffer + BUFFER_WIDTH * (2 * x) + (2 * y + 2) + CENTER_OFFSET) = "┐";
-	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y) + CENTER_OFFSET) = "└";
-	*(Buffer + BUFFER_WIDTH * (2 * x + 2) + (2 * y + 2) + CENTER_OFFSET) = "┘";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x) + (2 * CursorPlace.y) + CENTER_OFFSET) = "┌";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x) + (2 * CursorPlace.y + 2) + CENTER_OFFSET) = "┐";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 2) + (2 * CursorPlace.y) + CENTER_OFFSET) = "└";
+	*(Buffer + BUFFER_WIDTH * (2 * CursorPlace.x + 2) + (2 * CursorPlace.y + 2) + CENTER_OFFSET) = "┘";
 	return;
 }
 
@@ -190,12 +202,22 @@ void RestoreStyle(char **Buffer, place Place)
 			*(Buffer + BUFFER_WIDTH * 7 + CENTER_OFFSET + 2 * Place.y + 1) = "╋";
 			return;
 		}
+		else
+		{
+			*(Buffer + BUFFER_WIDTH * 7 + CENTER_OFFSET + 2 * Place.y + 1) = "┼";
+			return;
+		}
 	}
 	else if (Place.x == 11) // 下面一行星点
 	{
 		if (Place.y == 3 || Place.y == 11)
 		{
 			*(Buffer + BUFFER_WIDTH * 23 + CENTER_OFFSET + 2 * Place.y + 1) = "╋";
+			return;
+		}
+		else
+		{
+			*(Buffer + BUFFER_WIDTH * 23 + CENTER_OFFSET + 2 * Place.y + 1) = "┼";
 			return;
 		}
 	}
@@ -213,4 +235,63 @@ void RestoreStyle(char **Buffer, place Place)
 		default: *(Buffer + BUFFER_WIDTH * (2 * Place.x + 1) + CENTER_OFFSET + 2 * Place.y + 1) = "┼"; return;
 		}
 	}
+}
+
+
+//针对display.h中打印坐标时分配在堆中的内存，在棋盘销毁后（单局游戏退出时）要释放内存
+void FreeHeapMemory(char **Buffer)
+{
+	// 释放纵坐标
+	for (int i = 0; i < CHESSBORAD_LINES; i++)
+	{
+		free(*(Buffer + (2 * i + 1) * BUFFER_WIDTH + CENTER_OFFSET));
+		*(Buffer + (2 * i + 1) * BUFFER_WIDTH + CENTER_OFFSET) = NULL;
+	}
+	// 释放横坐标
+	for (int i = 0; i < CHESSBOARD_WIDTH; i++)
+	{
+		free(*(Buffer + 30 * BUFFER_WIDTH + 2 * i + 1 + CENTER_OFFSET));
+		*(Buffer + 30 * BUFFER_WIDTH + 2 * i + 1 + CENTER_OFFSET) = NULL;
+	}
+	return;
+}
+
+
+// 列表选择功能，用于纵向列表选择光标的打印和选择，自动居中
+int ListChoose(char ** Buffer, char ** OldBuffer, unsigned int LineNum, unsigned int ItemNum, int LeftCenterOffset, int RightCenterOffset, int StartPointer)
+{
+	int CurrentPointer = StartPointer;
+	while (1)
+	{
+		*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "→";
+		*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "←";
+		RefreshScreen(OldBuffer, Buffer);
+		rewind(stdin);
+		int key = GetKey();
+		switch (key)
+		{
+		case MOVE_UP:
+		{
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "  ";
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "  ";
+			CurrentPointer--;
+			break;
+		}
+		case MOVE_DOWN:
+		{
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 - LeftCenterOffset) = "  ";
+			*(Buffer + LineNum * BUFFER_WIDTH + 2 * BUFFER_WIDTH * (CurrentPointer - 1) + BUFFER_WIDTH / 2 + RightCenterOffset) = "  ";
+			CurrentPointer++;
+			break;
+		}
+		case CONFRM: return CurrentPointer;
+		default:
+			break;
+		}
+		//按键循环
+		if (CurrentPointer == ItemNum+1) CurrentPointer = 1;
+		else if (CurrentPointer == 0) CurrentPointer = ItemNum;
+	}
+	
+	return 0;
 }

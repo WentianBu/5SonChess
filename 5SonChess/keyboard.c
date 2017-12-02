@@ -1,8 +1,8 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "keyboard.h"
 
 #if USE_JSON_PROFILE==0
-int GetKey()
+int GetKey() // 读取键盘输入并且将用户操作传给主调函数
 {
 	char key1, key2;
 	rewind(stdin);

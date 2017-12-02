@@ -4,7 +4,13 @@
 // 将来和加载文件相关的函数都会放在这里
 
 // 接口定义
-typedef place(*tFuncpAI_Zhang)(int(*)[15], int); // 张宁鑫的旧版API的接口
+
+// 注意：编号0代表是人类玩家
+#define API_PERSON 0
+
+// 张宁鑫的旧版API的接口
+#define API_AI_Zhang 1
+typedef place(*tFuncpAI_Zhang)(int(*)[15], int);
 
 
 // 选择并打开dll文件
