@@ -4,12 +4,16 @@
 // display模块是五子棋主程序的核心模块之一
 
 #include "declaration.h"
-#include "keyboard.h"
+#include "operate.h"
 
 // 以下是程序显示模块的关键宏定义
 
+// 说明：缓冲器高度是缓冲器实际区域高度，缓冲器行数只是棋盘的高度。棋盘下方将会显示部分信息。
 #define BUFFER_LINES 32 //缓冲器行数
-#define BUFFER_WIDTH 33 //缓冲器宽度
+#define BUFFER_WIDTH 60 //缓冲器宽度
+
+// #define BUFFER_LENGTH 60 //缓冲器长度
+#define BUFFER_HEIGHT 40 //缓冲器高度
 
 #define CHESSBORAD_LINES 15 //棋盘行数
 #define CHESSBOARD_WIDTH 15 //棋盘列数
@@ -22,6 +26,10 @@
 // 初始化缓冲器，在其中填充空格（注意：不是赋值为NULL。缓冲器定义时已经赋初值NULL。）
 // 传入要初始化的缓冲器的首地址
 void InitiateBuffer(char **p);
+
+// 手动清屏：清除在缓冲区内全部填充空格
+// 注意：为了支持命令行窗口鼠标操作，system()函数不能使用，因此采用这个清屏。
+void CleanScreen(char ** Buffer, char ** OldBuffer);
 
 
 // 将光标移动到控制台的指定位置
