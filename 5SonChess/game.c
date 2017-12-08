@@ -58,67 +58,25 @@ static int StepManager(char **Buffer, char **OldBuffer, AIMark PlayerMark, place
 {
 	if (PlayerMark.AI_Type == 0) //玩家落子
 	{
-		rewind(stdin);
-		int key = INVALID;
-		do
+		do 
 		{
-			rewind(stdin);
-			key = GetKey();
-			switch (key)
+			USER_OPERATE user_operate = GetOperate(CursorPlace, Buffer, OldBuffer);
+			if (user_operate.type == CONFRM && Chess[user_operate.cPlace.x][user_operate.cPlace.y] == 0)
 			{
-			case MOVE_UP:
+				CursorPlace = user_operate.cPlace;
+				*pPlace = CursorPlace;
+				return 0;
+			}
+			else if (user_operate.type == REGRET)
 			{
-				CleanCursor(CursorPlace, Buffer);
-				CursorPlace.x--;
-				break;
+				*pPlace = user_operate.cPlace; // 这里也需要传参以正确清除光标
+				return 1;
 			}
-			case MOVE_DOWN:
+			else if (user_operate.type==EXIT)
 			{
-				CleanCursor(CursorPlace, Buffer);
-				CursorPlace.x++;
-				break;
+				return 2;
 			}
-			case MOVE_LEFT:
-			{
-				CleanCursor(CursorPlace, Buffer);
-				CursorPlace.y--;
-				break;
-			}
-			case MOVE_RIGHT:
-			{
-				CleanCursor(CursorPlace, Buffer);
-				CursorPlace.y++;
-				break;
-			}
-			case CONFRM:
-			{
-				if (Chess[CursorPlace.x][CursorPlace.y] == 0)
-				{
-					// 当前棋盘位置无棋子，正常完成落子操作
-					*pPlace = CursorPlace;
-					return 0;
-				}
-				else
-				{
-					// 当前位置有棋子，落子失败继续循环
-					break;
-				}
-
-			}
-			case REGRET: return 1;
-			case EXIT: return 2;
-			default:
-				break;
-			}
-			// 光标移出棋盘时的循环
-			if (CursorPlace.y == -1) CursorPlace.y = CHESSBOARD_WIDTH - 1;
-			if (CursorPlace.y == CHESSBOARD_WIDTH) CursorPlace.y = 0;
-			if (CursorPlace.x == -1) CursorPlace.x = CHESSBORAD_LINES - 1;
-			if (CursorPlace.x == CHESSBORAD_LINES) CursorPlace.x = 0;
-			// 绘制光标
-			DrawCursor(CursorPlace, Buffer);
-			RefreshScreen(OldBuffer, Buffer);
-		} while (1); //用户操作如果是有效的落子、悔棋或者退出，则已经return；能够执行到这里，直接继续循环判断即可
+		} while (1);
 	}
 	else // AI落子
 	{
@@ -209,7 +167,7 @@ int GameManager(int mode, AIMark Player1, AIMark Player2, char **Buffer, char **
 				Chess[LastPlace.x][LastPlace.y] = 0;
 				Round--;//回合数减1
 				CurrentPlayer = !CurrentPlayer;
-				CleanCursor(CursorPlace, Buffer);
+				CleanCursor(Place, Buffer);
 				CursorPlace = LastPlace;
 				DrawCursor(CursorPlace, Buffer);
 				RestoreStyle(Buffer, LastPlace);

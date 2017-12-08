@@ -28,7 +28,7 @@
     <ClCompile Include="judge.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="keyboard.c">
+    <ClCompile Include="operate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Use</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="LoadAI.c">
@@ -47,7 +47,7 @@
     <ClInclude Include="display.h" />
     <ClInclude Include="game.h" />
     <ClInclude Include="judge.h" />
-    <ClInclude Include="keyboard.h" />
+    <ClInclude Include="operate.h" />
     <ClInclude Include="LoadAI.h" />
     <ClInclude Include="record.h" />
     <ClInclude Include="stdafx.h" />

@@ -4,9 +4,8 @@
 // game模块是五子棋主程序的核心模块之一，负责游戏的流程运营
 
 #include "record.h" // 记录棋局需要包含此文件
-#include "keyboard.h" // 键盘操作需要该文件
+#include "operate.h" // 键盘操作需要该文件
 #include "LoadAI.h" // 获取AI接口需要包含此文件
-
 
 // 定义结构体
 typedef struct AIMark

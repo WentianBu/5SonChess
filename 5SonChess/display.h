@@ -4,7 +4,7 @@
 // display模块是五子棋主程序的核心模块之一
 
 #include "declaration.h"
-#include "keyboard.h"
+#include "operate.h"
 
 // 以下是程序显示模块的关键宏定义
 

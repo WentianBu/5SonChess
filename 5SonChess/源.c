@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "keyboard.h"
+#include "operate.h"
 #include "LoadAI.h"
 #include "record.h"
 #include "game.h"
@@ -212,7 +212,7 @@ int main()
 	// 设置缓冲区大小
 	// 注意：这里两个值都要比窗口大小的值小1才能恰好匹配。
 	COORD coord = { 2 * BUFFER_WIDTH,BUFFER_HEIGHT};
-	int err=SetConsoleScreenBufferSize(hOut, coord);
+	SetConsoleScreenBufferSize(hOut, coord);
 
 	// 禁用调节窗口大小功能
 	// 禁用后会出现滚动条，因此同时也禁用了垂直滚动条
@@ -236,10 +236,10 @@ int main()
 	// 设置窗口标题
 	SetConsoleTitle(_T("五子荣耀"));
 
-	//禁用快速编辑模式
+	//禁用快速编辑模式并允许鼠标操作
 	DWORD dwPrevMode = 0;
 	GetConsoleMode(hOut, &dwPrevMode);
-	SetConsoleMode(hIn, dwPrevMode | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT&~ENABLE_QUICK_EDIT_MODE);
+	SetConsoleMode(hIn, dwPrevMode | ENABLE_LINE_INPUT | ENABLE_ECHO_INPUT | ENABLE_MOUSE_INPUT&~ENABLE_QUICK_EDIT_MODE);
 
 	// 开始进入程序
 	char *Buffer[BUFFER_HEIGHT][BUFFER_WIDTH] = { NULL };

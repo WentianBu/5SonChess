@@ -24,9 +24,6 @@
     <ClCompile Include="display.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="keyboard.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="LoadAI.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -42,6 +39,9 @@
     <ClCompile Include="stdafx.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="operate.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
@@ -51,9 +51,6 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="keyboard.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="LoadAI.h">
@@ -66,6 +63,9 @@
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="game.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="operate.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
