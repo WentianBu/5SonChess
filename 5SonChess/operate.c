@@ -8,7 +8,9 @@ USER_OPERATE GetOperate(place CursorPlace,char **Buffer,char **OldBuffer)
 	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	INPUT_RECORD input;
 	DWORD res; // 接受ReadConsoleInput最后一个指针的值
-	// COORD pos; // 鼠标所在的缓冲器位坐标
+#ifdef MOUSE
+	COORD pos; // 鼠标所在的缓冲器位坐标
+#endif // MOUSE
 	// CurtPlc是鼠标当前所指位置相对棋盘的坐标，鼠标不在棋盘上时其值无效。
 	place CurtPlc = { -1,-1 };
 	USER_OPERATE Operate = { INVALID,{-1,-1} };
@@ -18,14 +20,15 @@ USER_OPERATE GetOperate(place CursorPlace,char **Buffer,char **OldBuffer)
 	while (1)
 	{
 		ReadConsoleInput(hIn, &input, 1, &res);
-		/*
-		以下为鼠标操作部分，为了调试方便已经屏蔽该功能。
-
+	
+		//以下为鼠标操作部分，为了调试方便已经屏蔽该功能。
+#ifdef MOUSE
 		pos = input.Event.MouseEvent.dwMousePosition;
 
-		// <for debug>
+#ifdef DEBUG
 		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES - 1);
 		printf("X = %4d, Y = %4d", (int)pos.X, (int)pos.Y);
+#endif // DEBUG
 
 		// 算法进行识别，计算出鼠标所指位置相对于棋盘数组的坐标
 		if (pos.X >= 31 && pos.X <= 89 && pos.Y >= 1 && pos.Y <= 30) // 鼠标处于识别区域内
@@ -46,10 +49,10 @@ USER_OPERATE GetOperate(place CursorPlace,char **Buffer,char **OldBuffer)
 			CurtPlc.x = CurtPlc.y = -1;
 		}
 
-		// <for debug>
+#ifdef DEBUG
 		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES);
 		printf("X = %4d, Y = %4d", CurtPlc.x, CurtPlc.y);
-		
+#endif // DEBUG
 		
 		if (input.EventType == MOUSE_EVENT)    //如果当前为鼠标事件  
 		{
@@ -58,9 +61,10 @@ USER_OPERATE GetOperate(place CursorPlace,char **Buffer,char **OldBuffer)
 				Operate.type = CONFRM;
 				Operate.cPlace = CursorPlace;
 
-				// <for debug>
-				gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
-				printf("左键");
+#ifdef DEBUG
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
+		printf("落子");
+#endif // DEBUG
 
 				return Operate;
 			}
@@ -69,14 +73,16 @@ USER_OPERATE GetOperate(place CursorPlace,char **Buffer,char **OldBuffer)
 			{
 				Operate.type = REGRET;
 
-				// <for debug>
-				gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
-				printf("右键");
-
+#ifdef DEBUG
+		gotoxy(2 * CENTER_OFFSET, BUFFER_LINES+1);
+		printf("悔棋");
+#endif // DEBUG
 				return Operate;
 			}
 		}
-		*/
+#endif // MOUSE
+
+		
 		if (input.EventType == KEY_EVENT&&input.Event.KeyEvent.bKeyDown == TRUE) //如果是键盘事件
 		{
 			WORD keyCode = input.Event.KeyEvent.wVirtualKeyCode;

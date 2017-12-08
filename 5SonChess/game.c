@@ -128,8 +128,10 @@ static int Judge(place Place, int Player)
 
 /* 单步管理器
  * 负责管理主程序与玩家或者AI的接口，处理操作
- * 返回值表示操作类型：0代表落子某点，此时落子位置通过指针*Place传出；1代表悔棋，由游戏管理器根据当前模式处理，2代表玩家结束游戏
- * 只负责在移动光标时绘制光标，棋子样式的绘制由游戏管理器处理
+ * 返回值表示操作类型：
+ * 0代表落子某点，此时落子位置通过指针*Place传出
+ * 1代表悔棋，由游戏管理器根据当前模式处理
+ * 2代表玩家结束游戏
  */
 static int StepManager(char **Buffer, char **OldBuffer, AIMark PlayerMark, place *pPlace)
 {

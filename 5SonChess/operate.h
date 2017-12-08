@@ -7,6 +7,8 @@
 // 是否使用JSON文件定义按键功能
 #define USE_JSON_PROFILE 0
 
+#define MOUSE
+
 // 若不使用JSON文件来定义按键，则自定义程度受到限制。
 /*
  *上下左右和WASD控制光标
@@ -59,6 +61,3 @@ USER_OPERATE GetOperate(place CursorPlace,  char ** Buffer, char ** OldBuffer);
 // 直接调用该函数获取按键信息，而无须处理不同的按键以及方向键。
 // 函数返回以上几种按键结果：光标移动、退出游戏、悔棋、落子以及无效按键。对不同按键的支持通过更改宏来进行。
 int GetKey();
-
-
-

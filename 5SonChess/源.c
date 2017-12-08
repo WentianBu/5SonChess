@@ -17,7 +17,7 @@ int MainMenu(char **Buffer, char **OldBuffer)
 	*(Buffer + 16 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "3. 双AI调试";
 	*(Buffer + 18 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "4. 查看规则";
 	*(Buffer + 20 * BUFFER_WIDTH + (BUFFER_WIDTH - 6) / 2) = "5. 退出游戏";
-	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 18) / 2) = "Powered By Wentian Bu  Version 1.2.2";
+	*(Buffer + 24 * BUFFER_WIDTH + (BUFFER_WIDTH - 18) / 2) = "Powered By Wentian Bu  Version 1.3.1";
 	for (int i = (BUFFER_WIDTH - 20) / 2; i < (BUFFER_WIDTH + 20) / 2; i++)
 		*(Buffer + 25 * BUFFER_WIDTH + i) = "—";
 	RefreshScreen(OldBuffer, Buffer);
