@@ -49,6 +49,83 @@ static errno_t InitiateGame(char ** Buffer, char ** OldBuffer)
 	return 0;
 }
 
+// 新版裁判函数，支持对黑方长连的检查。
+// 集成在game模块中，且为静态函数，外部无法调用。
+// 传入上次落子位置和玩家（黑/白），将围绕该位置的四个方向检查该玩家是否胜利
+// 返回值含义：黑0，白1，黑方长连禁手判负2，未分胜负3
+static int Judge(place Place, int Player)
+{
+	struct Count
+	{
+		int xCount; //左-右
+		int yCount; //上-下
+		int sCount; //左上-右下
+		int tCount; //右上-左下
+
+	};
+
+	struct Count ChessCount = { 0,0,0,0 };
+
+	// 检查起始点，每次检查将会回溯到某方向的开头然后向另一方向计数
+	place SP;
+
+	// 检查x方向
+	// 回溯至同色连续棋的最左侧一枚
+	for (SP = Place; (SP.y - 1) > -1 && Chess[SP.x][SP.y - 1] == Player + 1; SP.y--);
+	while (Chess[SP.x][SP.y]==Player+1)
+	{
+		ChessCount.xCount++;
+		SP.y++;
+		if (SP.y > 14) break;
+	}
+	
+	// 检查y方向
+	for (SP = Place; (SP.x - 1) > -1 && Chess[SP.x-1][SP.y] == Player + 1; SP.x--);
+	while (Chess[SP.x][SP.y] == Player + 1)
+	{
+		ChessCount.yCount++;
+		SP.x++;
+		if (SP.x > 14) break;
+	}
+	
+	// 检查s方向
+	for (SP = Place; (SP.y - 1) > -1 &&(SP.x-1)>-1&&Chess[SP.x-1][SP.y - 1] == Player + 1; SP.y--,SP.x--);
+	while (Chess[SP.x][SP.y] == Player + 1)
+	{
+		ChessCount.sCount++;
+		SP.x++;
+		SP.y++;
+		if (SP.y > 14 || SP.x > 14) break;
+	}
+
+	//检查t方向
+	for (SP = Place; (SP.y + 1) < 14 &&(SP.x-1)>-1&& Chess[SP.x][SP.y - 1] == Player + 1; SP.y++,SP.x--);
+	while (Chess[SP.x][SP.y] == Player + 1)
+	{
+		ChessCount.tCount++;
+		SP.x++;
+		SP.y--;
+		if (SP.y <0||SP.x>14) break;
+	}
+
+	if (ChessCount.xCount < 5 && ChessCount.yCount < 5 && ChessCount.sCount < 5 && ChessCount.tCount < 5)
+	{
+		return 3;
+	}
+	else if (ChessCount.xCount == 5 || ChessCount.yCount == 5 || ChessCount.sCount == 5 || ChessCount.tCount == 5)
+	{
+		return Player; // 如果存在连五，无论黑白和禁手都获胜
+	}
+	else if (Player==0&&BAN)
+	{
+		return 2; // 如果存在长连且没有连五，黑方判负
+	}
+	else
+	{
+		return Player;
+	}
+}
+
 /* 单步管理器
  * 负责管理主程序与玩家或者AI的接口，处理操作
  * 返回值表示操作类型：0代表落子某点，此时落子位置通过指针*Place传出；1代表悔棋，由游戏管理器根据当前模式处理，2代表玩家结束游戏
@@ -58,7 +135,7 @@ static int StepManager(char **Buffer, char **OldBuffer, AIMark PlayerMark, place
 {
 	if (PlayerMark.AI_Type == 0) //玩家落子
 	{
-		do 
+		do
 		{
 			USER_OPERATE user_operate = GetOperate(CursorPlace, Buffer, OldBuffer);
 			if (user_operate.type == CONFRM && Chess[user_operate.cPlace.x][user_operate.cPlace.y] == 0)
@@ -72,7 +149,7 @@ static int StepManager(char **Buffer, char **OldBuffer, AIMark PlayerMark, place
 				*pPlace = user_operate.cPlace; // 这里也需要传参以正确清除光标
 				return 1;
 			}
-			else if (user_operate.type==EXIT)
+			else if (user_operate.type == EXIT)
 			{
 				return 2;
 			}
@@ -135,9 +212,7 @@ int GameManager(int mode, AIMark Player1, AIMark Player2, char **Buffer, char **
 				DeleteRecordChain(&pNode);
 				return -2;
 			} //错误码-2代表添加记录失败
-			Winner = Check(CursorPlace.x, CursorPlace.y, CurrentPlayer, Chess[0]);
-			// 这是个历史遗留问题，目前采用的裁判函数如果Winner=-1代表无人获胜
-			if (Winner == -1) Winner = 3;
+			Winner = Judge(CursorPlace, CurrentPlayer);
 			Round++;
 			CurrentPlayer = !CurrentPlayer;
 			// 处理EVE时定义的间隔时间

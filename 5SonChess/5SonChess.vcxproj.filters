@@ -33,9 +33,6 @@
     <ClCompile Include="game.c">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="judge.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="stdafx.c">
       <Filter>源文件</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="display.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="judge.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">

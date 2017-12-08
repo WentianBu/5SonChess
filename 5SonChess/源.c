@@ -34,7 +34,8 @@ void PVP(char **Buffer, char **OldBuffer)
 	{
 	case 0: printf("黑方获得胜利！\n"); break;
 	case 1: printf("白方获得胜利！\n"); break;
-	case 2: printf("平局！\n"); break;
+	case 2: printf("黑方长连判负，白方胜利！\n"); break;
+	case 3: printf("平局！\n"); break;
 	case 4: printf("已放弃本局游戏。\n"); break;
 	default:
 		break;
@@ -84,7 +85,8 @@ void PVE(char **Buffer, char **OldBuffer)
 	{
 	case 0: printf("黑方获得胜利！\n"); break;
 	case 1: printf("白方获得胜利！\n"); break;
-	case 2: printf("平局！\n"); break;
+	case 2: printf("黑方长连判负，白方胜利！\n"); break;
+	case 3: printf("平局！\n"); break;
 	case 4: printf("已放弃本局游戏。\n"); break;
 	default:
 		break;
@@ -166,7 +168,10 @@ void EVE(char **Buffer, char **OldBuffer)
 			case 1: printf("白方获得胜利！");
 				WhiteWin++;
 				break;
-			case 2: printf("平局！");
+			case 2: printf("黑方长连判负，白方胜利！\n"); 
+				WhiteWin++;
+				break;
+			case 3: printf("平局！");
 				NoWin++;
 				break;
 			}

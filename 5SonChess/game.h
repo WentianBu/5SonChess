@@ -7,6 +7,11 @@
 #include "operate.h" // 键盘操作需要该文件
 #include "LoadAI.h" // 获取AI接口需要包含此文件
 
+// 禁手规则是否采用
+// 目前仅影响裁判函数对长连的判定
+#define BAN 1
+
+
 // 定义结构体
 typedef struct AIMark
 {
